@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>✨ Afirmaciones y Oraciones Diarias</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--text:#fff;--shadow:rgba(0,0,0,0.3)}
+html,body{height:100%;overflow:hidden;font-family:'Montserrat',sans-serif}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;
+background:linear-gradient(135deg,#0a0a2e 0%,#1a0a3e 50%,#0d1b2a 100%);
+transition:background 1.5s ease;color:var(--text);text-align:center;padding:20px;position:relative}
+
+/* Stars animation */
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.star{position:absolute;background:radial-gradient(circle,#fff 0%,rgba(255,255,255,0) 70%);border-radius:50%;animation:twinkle var(--dur) ease-in-out infinite;box-shadow:0 0 6px 2px rgba(255,255,255,0.3)}
+@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* Main content */
+.container{position:relative;z-index:1;max-width:600px;width:100%;display:flex;flex-direction:column;align-items:center;gap:30px}
+
+/* Header */
+.header{display:flex;align-items:center;gap:10px;opacity:0.9}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;letter-spacing:2px;text-transform:uppercase}
+
+/* Day counter */
+.day-counter{font-size:0.85rem;opacity:0.85;letter-spacing:3px;font-weight:400;color:rgba(180,180,255,0.9)}
+
+/* Affirmation card */
+.card{background:rgba(10,10,40,0.6);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+border:1px solid rgba(100,100,255,0.15);border-radius:24px;padding:40px 30px;
+min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.08);transition:all 0.5s ease;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);
+animation:shimmer 8s linear infinite}
+@keyframes shimmer{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+.affirmation-text{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:400;
+line-height:1.7;letter-spacing:0.5px;position:relative;z-index:1;
+text-shadow:0 2px 15px rgba(0,0,0,0.5),0 0 30px rgba(0,0,0,0.3);font-style:italic;color:rgba(255,255,255,0.95)}
+.affirmation-text::before{content:'"';font-size:3rem;opacity:0.3;position:absolute;
+top:-20px;left:-10px;font-family:serif}
+.author{font-size:0.75rem;opacity:0.7;margin-top:15px;letter-spacing:2px;font-weight:400;position:relative;z-index:1;color:rgba(160,160,255,0.8)}
+
+/* Buttons */
+.btn-row{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+.btn{background:rgba(20,20,60,0.5);border:1px solid rgba(100,100,255,0.25);
+border-radius:50px;padding:12px 24px;color:#fff;font-family:'Montserrat',sans-serif;
+font-size:0.8rem;letter-spacing:1px;cursor:pointer;transition:all 0.3s ease;
+backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;gap:8px}
+.btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px)}
+.btn:active{transform:scale(0.95)}
+.btn.active{background:rgba(255,255,255,0.3);border-color:rgba(255,255,255,0.6)}
+.btn-icon{font-size:1.1rem}
+
+/* Settings panel */
+.settings{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,5,20,0.95);
+backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);z-index:100;
+display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;gap:20px}
+.settings.show{display:flex}
+.settings h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;margin-bottom:10px}
+.settings-group{width:100%;max-width:400px;text-align:left}
+.settings-group label{display:block;font-size:0.8rem;opacity:0.7;margin-bottom:5px;letter-spacing:1px}
+.settings-group select,.settings-group input{width:100%;padding:12px;border-radius:12px;
+border:1px solid rgba(100,100,255,0.2);background:rgba(15,15,40,0.8);color:rgba(200,200,255,0.95);
+font-family:'Montserrat',sans-serif;font-size:0.9rem;backdrop-filter:blur(10px)}
+.settings-group input[type=time]{color-scheme:dark}
+.close-btn{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;
+font-size:2rem;cursor:pointer;opacity:0.7}
+.close-btn:hover{opacity:1}
+.notify-btn{background:rgba(20,20,60,0.5);border:1px solid rgba(100,100,255,0.3);
+border-radius:12px;padding:15px;color:rgba(200,200,255,0.95);font-family:'Montserrat',sans-serif;
+font-size:0.9rem;cursor:pointer;width:100%;max-width:400px;transition:all 0.3s}
+.notify-btn:hover{background:rgba(30,30,80,0.6)}
+.notify-btn.granted{background:rgba(76,175,80,0.3);border-color:rgba(76,175,80,0.6)}
+
+/* Notification toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
+background:rgba(15,15,40,0.85);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+border:1px solid rgba(100,100,255,0.2);border-radius:16px;padding:15px 25px;
+font-size:0.85rem;z-index:200;transition:transform 0.5s ease;max-width:90%;
+color:rgba(200,200,255,0.95)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Swipe hint */
+.swipe-hint{position:fixed;bottom:15px;font-size:0.7rem;opacity:0.4;letter-spacing:2px;z-index:1}
+
+/* Fade animation */
+.fade-in{animation:fadeIn 0.8s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Responsive */
+@media(max-width:480px){
+.affirmation-text{font-size:1.3rem}
+.card{padding:30px 20px;min-height:200px}
+.header h1{font-size:1.1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="container">
+  <div class="header">
+    <span style="font-size:1.5rem">✨</span>
+    <h1>✨ Afirmaciones y Oraciones</h1>
+  </div>
+  
+  <div class="day-counter" id="dayCounter">DÍA 1 DE 372</div>
+  
+  <div class="card fade-in" id="card">
+    <div class="affirmation-text" id="affirmation">Cargando...</div>
+    <div class="author" id="author"></div>
+  </div>
+  
+  <div class="btn-row">
+    <button class="btn active" id="btnAffirm" onclick="setMode('affirm')"><span class="btn-icon">✨</span> Afirmaciones</button>
+    <button class="btn" id="btnPrayer" onclick="setMode('prayer')"><span class="btn-icon">🙏</span> Oraciones</button>
+  </div>
+  
+  <div class="btn-row">
+    <button class="btn" onclick="prevDay()"><span class="btn-icon">◀</span> Anterior</button>
+    <button class="btn" onclick="randomAffirmation()"><span class="btn-icon">🎲</span> Aleatorio</button>
+    <button class="btn" onclick="nextDay()"><span class="btn-icon">▶</span> Siguiente</button>
+  </div>
+  
+  <div class="btn-row">
+    <button class="btn" onclick="toggleMusic()" id="musicBtn"><span class="btn-icon">🎵</span> Música</button>
+    <button class="btn" onclick="shareAffirmation()"><span class="btn-icon">📤</span> Compartir</button>
+    <button class="btn" onclick="toggleSettings()"><span class="btn-icon">⚙️</span> Ajustes</button>
+  </div>
+  
+  <!-- Audio player (hidden) -->
+  <audio id="audioPlayer" loop preload="auto">
+    <source src="musica_loop.mp3" type="audio/mpeg">
+  </audio>
+  <!-- Volume control -->
+  <div class="volume-row" id="volumeRow" style="display:none">
+    <span style="font-size:0.8rem;opacity:0.7">🔊</span>
+    <input type="range" id="volumeSlider" min="0" max="100" value="30" oninput="setVolume(this.value)" style="width:120px;accent-color:rgba(100,100,255,0.8)">
+    <span style="font-size:0.8rem;opacity:0.7" id="volumeLabel">30%</span>
+  </div>
+</div>
+
+<div class="settings" id="settings">
+  <button class="close-btn" onclick="toggleSettings()">×</button>
+  <h2>⚙️ Ajustes</h2>
+  
+  <div class="settings-group">
+    <label>🌅 Recordatorio mañana</label>
+    <input type="time" id="notifMorning" value="08:00">
+  </div>
+  
+  <div class="settings-group">
+    <label>☀️ Recordatorio medio día</label>
+    <input type="time" id="notifNoon" value="12:00">
+  </div>
+  
+  <div class="settings-group">
+    <label>🌅 Recordatorio tarde</label>
+    <input type="time" id="notifAfternoon" value="17:00">
+  </div>
+  
+  <div class="settings-group">
+    <label>🌙 Recordatorio noche</label>
+    <input type="time" id="notifNight" value="21:00">
+  </div>
+  
+  <button class="notify-btn" id="notifyBtn" onclick="requestNotifications()">
+    🔔 Activar notificaciones
+  </button>
+  
+  <button class="notify-btn" onclick="saveSettings()">
+    💾 Guardar ajustes
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="swipe-hint">◀ desliza ▶</div>
+
+<script>
+// ═══════════════════════════════════════════
+// 372 AFIRMACIONES ÚNICAS
+// ═══════════════════════════════════════════
+const affirmations=[
+// EMMET FOX - DECRETOS (30)
+{t:"Yo Soy hijo de Dios. Yo Soy expresión perfecta de la vida divina.",a:"Emmet Fox"},
+{t:"No hay poder fuera de tu imaginación, porque tu imaginación es Dios mismo en acción.",a:"Emmet Fox"},
+{t:"El sentido del fin precede y determina la secuencia de hechos externos.",a:"Neville Godard"},
+{t:"La sensación antecede a la evidencia. Quien espera a ver para sentir solo multiplica la espera.",a:"Emmet Fox"},
+{t:"Tu mundo no es sino tu imaginación objetivada.",a:"Emmet Fox"},
+{t:"Contemplo las cosas que no son como si fuesen. Yo no mendigo a la vida. Yo decreto.",a:"Emmet Fox"},
+{t:"Yo Soy la salud de Dios. El Espíritu Santo vivifica cada célula de mi ser.",a:"Emmet Fox"},
+{t:"Yo Soy la abundancia divina manifestándose ahora.",a:"Emmet Fox"},
+{t:"Yo Soy el amor divino envolviendo y atrayendo todo lo perfecto a mi vida.",a:"Emmet Fox"},
+{t:"Yo Soy la paz de Dios manifestándose ahora en mí.",a:"Emmet Fox"},
+{t:"Yo Soy rodeado por la luz invencible de Dios.",a:"Emmet Fox"},
+{t:"Mi palabra no vuelve vacía, porque sale cargada del poder del Espíritu Santo.",a:"Emmet Fox"},
+{t:"El ángel de Jehová acampa a mi alrededor y me defiende en todo momento.",a:"Emmet Fox"},
+{t:"Yo Soy guiado en cada paso por la sabiduría infinita de Dios.",a:"Emmet Fox"},
+{t:"Todo lo que hago lo hago como para el Señor.",a:"Emmet Fox"},
+{t:"Hoy avanzo con facilidad y alegría. Mis caminos son suaves, mis pasos son firmes.",a:"Emmet Fox"},
+{t:"Yo Soy la abundancia de Dios en expresión. Nada me falta.",a:"Emmet Fox"},
+{t:"Bendigo y libero el pasado. Todo está perdonado, todo está sanado.",a:"Emmet Fox"},
+{t:"Yo Soy libre en Cristo. Yo Soy la expresión viviente de la libertad divina.",a:"Emmet Fox"},
+{t:"Yo Soy uno con la riqueza infinita de Dios.",a:"Emmet Fox"},
+{t:"Yo Soy la opulencia divina manifestándose ahora en mi vida.",a:"Emmet Fox"},
+{t:"Dios llama las cosas que no son como si fuesen. — Romanos 4:17",a:"Emmet Fox"},
+{t:"No te preguntes por los medios. La semilla se descompone y brota como un hecho nuevo.",a:"Emmet Fox"},
+{t:"Yo Soy la fortaleza de Dios renovándome ahora.",a:"Emmet Fox"},
+{t:"Yo Soy el gozo de Dios en expresión. Mi alma canta, mi espíritu danza.",a:"Emmet Fox"},
+{t:"Yo Soy el servidor del amor divino. Sirvo con alegría, sirvo con gratitud.",a:"Emmet Fox"},
+{t:"La paz de Dios guarda mi mente y mi corazón en Cristo Jesús.",a:"Emmet Fox"},
+{t:"Yo Soy el amor de Dios perdonando, liberando y bendiciendo.",a:"Emmet Fox"},
+{t:"Yo Soy un imán divino que atrae relaciones benditas, sanas y llenas de amor.",a:"Emmet Fox"},
+{t:"Hoy soy guiado, protegido y sostenido por la presencia de Dios.",a:"Emmet Fox"},
+
+// FLORENCE SCOVEL SHINN - DINERO (19)
+{t:"Soy abundancia divina.",a:"F. Scovel Shinn"},
+{t:"Dinero querido, te honro y te respeto. Eres mi aliado divino.",a:"F. Scovel Shinn"},
+{t:"Dinero querido, te libero con amor para que bendigas a otros y regreses a mí multiplicado.",a:"F. Scovel Shinn"},
+{t:"Dinero bendito, te recibo con alegría y gratitud.",a:"F. Scovel Shinn"},
+{t:"Soy digno de abundancia ilimitada porque soy expresión perfecta de Dios.",a:"F. Scovel Shinn"},
+{t:"Por mi autoridad divina, ordeno que el dinero fluya hacia mí ahora, multiplicado y bendecido.",a:"F. Scovel Shinn"},
+{t:"No estoy pidiendo un favor. Estoy reclamando mi herencia.",a:"F. Scovel Shinn"},
+{t:"Siempre soy sostenido por la abundancia infinita del universo.",a:"F. Scovel Shinn"},
+{t:"Dinero querido, rompo todos los patrones de escasez de mi linaje familiar.",a:"F. Scovel Shinn"},
+{t:"Asimilo ahora la vibración de la abundancia universal.",a:"F. Scovel Shinn"},
+{t:"Doy gracias anticipadas por la abundancia visible y la invisible.",a:"F. Scovel Shinn"},
+{t:"Mi orden divina está siendo ejecutada ahora.",a:"F. Scovel Shinn"},
+{t:"Soy canal abierto y transparente de la provisión universal.",a:"F. Scovel Shinn"},
+{t:"El dinero me conoce, me busca y fluye a través de mí con fidelidad.",a:"F. Scovel Shinn"},
+{t:"Doy con amor, recibo con gratitud, y vivo en el milagro continuo de la abundancia.",a:"F. Scovel Shinn"},
+{t:"Bendigo esta abundancia y doy gracias porque se multiplica.",a:"F. Scovel Shinn"},
+{t:"Reconozco que aprendí esto de ti. Ahora elijo liberarme de esta creencia.",a:"F. Scovel Shinn"},
+{t:"Te perdono por enseñarme lo que sabías sobre el dinero, aunque no era verdad universal.",a:"F. Scovel Shinn"},
+{t:"La vida entera es circulación. Todo lo que circula vive.",a:"F. Scovel Shinn"},
+
+// NEVILLE GODARD - TIEMPO COMPRIMIDO (22)
+{t:"El futuro no es un territorio inexplorado, sino una realidad psicológica tan viva como cualquier recuerdo.",a:"Neville Godard"},
+{t:"El tiempo es en su raíz una convención mental, una costumbre del alma dormida.",a:"Neville Godard"},
+{t:"Cruzar el umbral psicológico significa salir de la identificación con el presente físico.",a:"Neville Godard"},
+{t:"El acto creador no es solo proyectar hacia adelante, sino retroceder desde el fin cumplido.",a:"Neville Godard"},
+{t:"La anticipación es simplemente la memoria en reversa.",a:"Neville Godard"},
+{t:"No existe otro mecanismo. La conciencia es el puente.",a:"Neville Godard"},
+{t:"La ansiedad surge de una fe incompleta.",a:"Neville Godard"},
+{t:"La semilla plantada no requiere ser desenterrada cada día para comprobar su progreso.",a:"Neville Godard"},
+{t:"No es cuestión de si sucederá, sino de cuándo.",a:"Neville Godard"},
+{t:"Cuando piensas en un deseo, eres espectador. Cuando lo asumes con emoción, eres protagonista.",a:"Neville Godard"},
+{t:"El espectador espera que el telón se levante. El protagonista ya está en escena.",a:"Neville Godard"},
+{t:"La fe vivida y sentida es el mecanismo por el cual el futuro se rinde.",a:"Neville Godard"},
+{t:"El destino no es un decreto externo, sino el eco fiel de tu imaginación asumida.",a:"Neville Godard"},
+{t:"Fuiste tú quien cambió primero y el mundo te siguió.",a:"Neville Godard"},
+{t:"El yo Soy es la certeza silenciosa que permanece idéntica en medio de todos los cambios.",a:"Neville Godard"},
+{t:"Antes que Abraham fuese, Yo Soy. — Juan 8:58",a:"Neville Godard"},
+{t:"El deseo y su cumplimiento eran uno solo, no dos.",a:"Neville Godard"},
+{t:"Yo Soy aquello que siempre he buscado.",a:"Neville Godard"},
+{t:"No eres un efecto, sino la causa. No un resultado, sino el origen de toda experiencia.",a:"Neville Godard"},
+{t:"La eternidad está contenida en el instante en que sabes que Yo Soy.",a:"Neville Godard"},
+{t:"Todo lo que pidáis orando, creed que lo recibiréis y os vendrá.",a:"Neville Godard"},
+{t:"Cada vez que pronuncias Yo Soy invocas la presencia operativa de la divinidad en ti.",a:"Neville Godard"},
+
+// EMMET FOX - CONCIENCIA DEL CRISTO (40)
+{t:"Lo que soy no necesita arreglarse. Lo que soy ya es uno con Dios.",a:"Emmet Fox"},
+{t:"Vivir desde el ser no significa pensar menos, sino pensar desde otro lugar.",a:"Emmet Fox"},
+{t:"La paz no nace del pensamiento, nace del ser.",a:"Emmet Fox"},
+{t:"Yo Soy. Y desde ese Yo Soy, todo lo demás encuentra su sitio.",a:"Emmet Fox"},
+{t:"El Cristo no es una figura histórica. El Cristo es una frecuencia, una conciencia, una presencia.",a:"Emmet Fox"},
+{t:"Yo soy la frecuencia del Cristo, reconociéndose a sí misma en mí.",a:"Emmet Fox"},
+{t:"Despertar es un instante de claridad. Pero ese instante no es el destino, es solo la puerta.",a:"Emmet Fox"},
+{t:"Morar en el espíritu es el verdadero camino.",a:"Emmet Fox"},
+{t:"No se trata de tratar más fuerte, se trata de soltar más profundo.",a:"Emmet Fox"},
+{t:"No transmites luz, te vuelves la luz. No invocas la paz. Eres la paz.",a:"Emmet Fox"},
+{t:"El yo al que nos aferramos no es el Yo Soy del espíritu. Es un constructo.",a:"Emmet Fox"},
+{t:"Jesús no vino a decorar el yo. Vino a disolverlo.",a:"Emmet Fox"},
+{t:"Pierde tu vida y la hallarás.",a:"Emmet Fox"},
+{t:"Gracias por lo que fuiste. Pero ahora el Cristo vive en mí.",a:"Emmet Fox"},
+{t:"Dios no habla con palabras. Dios habla con certeza.",a:"Emmet Fox"},
+{t:"La defensa es la evidencia de que aún crees en el ataque.",a:"Emmet Fox"},
+{t:"No defenderse no es debilidad. Es la posición más alta de la conciencia.",a:"Emmet Fox"},
+{t:"Suelta la necesidad de tener razón y la verdad te sostendrá.",a:"Emmet Fox"},
+{t:"Perdonar no es olvidar. Es dejar de permitir que el pasado gobierne el presente.",a:"Emmet Fox"},
+{t:"El perdón no cambia al otro. Te cambia a ti.",a:"Emmet Fox"},
+{t:"El resentimiento es el veneno que bebes esperando que el otro se enferme.",a:"Emmet Fox"},
+{t:"Tu vibración es tu oración más poderosa.",a:"Emmet Fox"},
+{t:"No pidas que cambien las circunstancias. Eleva tu frecuencia y las circunstancias se ajustarán.",a:"Emmet Fox"},
+{t:"No necesitas palabras para orar. Necesitas verdad.",a:"Emmet Fox"},
+{t:"Cuando vibras con la fuente, el reino deja de ser promesa para convertirse en atmósfera.",a:"Emmet Fox"},
+{t:"El Cristo no espera que la luz lo use. Cristo sabe que él es la luz.",a:"Emmet Fox"},
+{t:"No ser instrumento de Dios, sino encarnación viva del Espíritu.",a:"Emmet Fox"},
+{t:"Espíritu, yo soy.",a:"Emmet Fox"},
+{t:"Tu sola presencia es suficiente. Tu silencio ya es mensaje.",a:"Emmet Fox"},
+{t:"El reino de Dios no es una recompensa futura. Es la única realidad que existe.",a:"Emmet Fox"},
+{t:"Lo que vibra con la fuente no puede caer, no puede faltar, no puede apagarse.",a:"Emmet Fox"},
+{t:"Yo habito el reino y desde ahí observo, bendigo y permanezco.",a:"Emmet Fox"},
+{t:"El milagro no es meta. Es consecuencia natural de un estado del ser.",a:"Emmet Fox"},
+{t:"No busques el milagro. Busca el reino.",a:"Emmet Fox"},
+{t:"No viniste a buscar milagros. Viniste a recordar tu naturaleza divina.",a:"Emmet Fox"},
+{t:"La unión con Dios no se alcanza. Se revela cuando se deja de intentar alcanzarla.",a:"Emmet Fox"},
+{t:"Rendirse no es dejar de actuar. Es actuar sin interferencia del ego.",a:"Emmet Fox"},
+{t:"Donde ya no hay resistencia, solo queda Dios.",a:"Emmet Fox"},
+{t:"La conciencia crística no reacciona, revela.",a:"Emmet Fox"},
+{t:"Permanece. Sostén la visión. Deja que tu presencia revele la verdad.",a:"Emmet Fox"},
+
+// NEVILLE GODARD - EL ESPEJO DE DIOS (38)
+{t:"Lo visible no es más que la piel externa de una realidad infinitamente más rica.",a:"Neville Godard"},
+{t:"No eres un cuerpo que busca respuestas. Eres la conciencia que se sueña a sí misma.",a:"Neville Godard"},
+{t:"Todo lo que parece externo es en realidad un espejo que refleja tu estado más íntimo.",a:"Neville Godard"},
+{t:"Lo visible es memoria. Lo invisible es semilla.",a:"Neville Godard"},
+{t:"Tú eres un ser vibratorio, no físico. Tú eres espíritu, no carne.",a:"Neville Godard"},
+{t:"Tus circunstancias son las sombras visibles de causas invisibles.",a:"Neville Godard"},
+{t:"Cambiar de estado no es solo cambiar de humor, es cambiar de universo.",a:"Neville Godard"},
+{t:"La imaginación no inventa, revela.",a:"Neville Godard"},
+{t:"Tú puedes ahora mismo entrar en otra dimensión. Solo necesitas una decisión interna.",a:"Neville Godard"},
+{t:"Cada estado superior contiene una versión más pura de ti.",a:"Neville Godard"},
+{t:"No hay final. El viaje es infinito porque la conciencia no tiene techo.",a:"Neville Godard"},
+{t:"Tú eres simultáneamente el proyector y la pantalla.",a:"Neville Godard"},
+{t:"El mundo entero es tu espejo.",a:"Neville Godard"},
+{t:"No estás imaginando para crear. Estás imaginando para entrar, porque ya existe.",a:"Neville Godard"},
+{t:"Los sueños no son fantasías del descanso. Son lenguaje puro del alma.",a:"Neville Godard"},
+{t:"Tu alma no duerme nunca. Mientras descansas, ella trabaja.",a:"Neville Godard"},
+{t:"No estás solo nunca. El invisible está poblado de consciencias que te asisten.",a:"Neville Godard"},
+{t:"Las palabras sin vibración no crean nada. Son conchas vacías.",a:"Neville Godard"},
+{t:"Si deseas transformar tu mundo, no luches contra la materia. Transforma tu expresión interior.",a:"Neville Godard"},
+{t:"Nada aparece allí afuera que no haya sido emitido desde dentro.",a:"Neville Godard"},
+{t:"Tu cuerpo no es tu cárcel. Es tu mapa.",a:"Neville Godard"},
+{t:"El espejo que revela lo invisible no está en el mundo externo. Está en tu interior.",a:"Neville Godard"},
+{t:"La visión espiritual no es un don reservado a unos pocos. Es una capacidad inherente a todos.",a:"Neville Godard"},
+{t:"No eres un personaje que vive en un mundo. Eres la conciencia misma que sueña al mundo.",a:"Neville Godard"},
+{t:"Solo quien olvida puede recordar. Solo quien desciende puede ascender.",a:"Neville Godard"},
+{t:"Tú no eres un ser que busca a Dios. Tú eres Dios recordándose en forma humana.",a:"Neville Godard"},
+{t:"Habitar el mundo sabiendo que tú eres su fuente.",a:"Neville Godard"},
+{t:"Tú no eres una criatura de Dios. Tú eres Dios soñando ser una criatura.",a:"Neville Godard"},
+{t:"La carne no es tu prisión. Es el velo donde Dios se oculta de sí mismo.",a:"Neville Godard"},
+{t:"No hay distancia entre tú y Dios. La única distancia es el olvido.",a:"Neville Godard"},
+{t:"Tú eres el sueño de Dios. Y ahora estás empezando a soñar lúcido.",a:"Neville Godard"},
+{t:"No tienes que crear tu realidad. Ya la estás creando sin saberlo.",a:"Neville Godard"},
+{t:"No eres un resultado del tiempo. Eres anterior al tiempo.",a:"Neville Godard"},
+{t:"Tú crees que naciste, pero lo que nació fue el velo.",a:"Neville Godard"},
+{t:"Nunca fuiste criatura. Siempre fuiste creador.",a:"Neville Godard"},
+{t:"La serpiente no tentó. Invitó al despertar.",a:"Neville Godard"},
+{t:"Solo en el contraste se puede descubrir la luz.",a:"Neville Godard"},
+{t:"Eres el puente entre lo eterno y lo temporal. Eres el fuego encarnado.",a:"Neville Godard"},
+
+// NEVILLE GODARD - DIOS ESTÁ SOÑANDO SER TÚ (30)
+{t:"El pecado no es un acto moral. Es el olvido del ser.",a:"Neville Godard"},
+{t:"Hay un trono vacío en el corazón del hombre. Es el asiento eterno del Yo Soy.",a:"Neville Godard"},
+{t:"No hay mayor poder que asumir el trono interno.",a:"Neville Godard"},
+{t:"La caída no fue condena. Fue decisión.",a:"Neville Godard"},
+{t:"El pasado no es una piedra. Es una página escrita con la tinta de tu interpretación.",a:"Neville Godard"},
+{t:"Tú puedes cambiar el pasado en el registro viviente de tu alma.",a:"Neville Godard"},
+{t:"No hay cárcel más profunda que una memoria mal sostenida.",a:"Neville Godard"},
+{t:"Asume un nuevo pasado. Declara que siempre fuiste abundante, amado, guiado.",a:"Neville Godard"},
+{t:"Tú eres el escriba del libro sagrado. Tú eres el lector, el autor y el protagonista.",a:"Neville Godard"},
+{t:"Cristo no es un personaje. Es un estado de conciencia.",a:"Neville Godard"},
+{t:"Cristo no se alcanza desde el esfuerzo. Cristo se asume.",a:"Neville Godard"},
+{t:"La segunda venida ocurre cada vez que alguien recuerda quién es.",a:"Neville Godard"},
+{t:"El reino no viene. Se revela en quien recuerda.",a:"Neville Godard"},
+{t:"Habita el fin. Siéntelo como si ya fuese.",a:"Neville Godard"},
+{t:"Yo Soy el Alfa y la Omega. El principio y el fin.",a:"Neville Godard"},
+{t:"No digas Yo Soy buscando. Di Yo Soy encontrando.",a:"Neville Godard"},
+{t:"No digas Yo Soy esperando un milagro. Di Yo Soy el milagro hecho carne.",a:"Neville Godard"},
+{t:"Tú eres en todo momento lo que declaras ser con certeza.",a:"Neville Godard"},
+{t:"Cristo no regresa. Cristo despierta. Y lo hace en ti.",a:"Neville Godard"},
+{t:"Tú eres la segunda venida hecha carne.",a:"Neville Godard"},
+{t:"El final del sueño no es una huida. Es un ascenso silencioso a la identidad original.",a:"Neville Godard"},
+{t:"No hay afuera. Todo ocurre en ti, como tú, a través de ti.",a:"Neville Godard"},
+{t:"Convertirse en el que imagina es dejar de ser efecto y convertirse en causa.",a:"Neville Godard"},
+{t:"Dios jamás estuvo distante porque tú eres ese Dios soñando, sintiendo, creando.",a:"Neville Godard"},
+{t:"El árbol está en ti. La serpiente eres tú. El fruto es tu deseo de recordar.",a:"Neville Godard"},
+{t:"Yo soy el que era, el que es y el que será.",a:"Neville Godard"},
+{t:"El Edén no es un lugar. Es un estado de conciencia original.",a:"Neville Godard"},
+{t:"Tú eres el ungido cuando dejas de buscar.",a:"Neville Godard"},
+{t:"La materia no es la realidad esencial. Es su eco.",a:"Neville Godard"},
+{t:"Lo que llamas sólido es solo una frecuencia estabilizada.",a:"Neville Godard"},
+
+// JOSEPH MURPHY - SANGRE PRÓSPERA (30)
+{t:"Todo lo que circula vive. Todo lo que se estanca muere.",a:"Joseph Murphy"},
+{t:"El dinero es la sangre de la vida material. Es un torrente de energía.",a:"Joseph Murphy"},
+{t:"Tu prosperidad no depende de la suerte. Depende de la imagen que sostienes en tu interior.",a:"Joseph Murphy"},
+{t:"La gratitud es el oxígeno de esa sangre económica.",a:"Joseph Murphy"},
+{t:"Quien agradece multiplica. Quien se queja corta la circulación.",a:"Joseph Murphy"},
+{t:"Mi mente fluye, mi dinero fluye, mi vida fluye.",a:"Joseph Murphy"},
+{t:"Si ves el gasto como siembra, programas tu interior para prosperar.",a:"Joseph Murphy"},
+{t:"La gratitud convierte la gota en río, el puñado en cosecha, la semilla en bosque.",a:"Joseph Murphy"},
+{t:"No esperes tener mucho para agradecer. Agradece ahora y lo mucho vendrá.",a:"Joseph Murphy"},
+{t:"La pobreza no es destino. Es obstrucción mental.",a:"Joseph Murphy"},
+{t:"Yo soy digno de recibir riqueza. La abundancia es mi derecho natural.",a:"Joseph Murphy"},
+{t:"Mi corazón de oro late con la abundancia del infinito.",a:"Joseph Murphy"},
+{t:"La alegría engorda los bolsillos.",a:"Joseph Murphy"},
+{t:"La risa no es consecuencia de la riqueza. Es la causa.",a:"Joseph Murphy"},
+{t:"La alegría abre la puerta de la prosperidad. La tristeza es un candado.",a:"Joseph Murphy"},
+{t:"Lo que doy circula y en círculos perfectos regresa multiplicado a mí.",a:"Joseph Murphy"},
+{t:"Dar no empobrece. Enriquece.",a:"Joseph Murphy"},
+{t:"No eres la fuente del dinero. Eres el canal.",a:"Joseph Murphy"},
+{t:"El miedo asfixia. La fe respira.",a:"Joseph Murphy"},
+{t:"Mi subconsciente es un banco infinito. Yo deposito ideas de riqueza.",a:"Joseph Murphy"},
+{t:"Fe + imagen = prosperidad.",a:"Joseph Murphy"},
+{t:"Soy próspero ahora. La riqueza fluye en mí. La abundancia me rodea.",a:"Joseph Murphy"},
+{t:"La fe no es esperar. Es poseer. No es futuro. Es presente.",a:"Joseph Murphy"},
+{t:"La riqueza late en equilibrio. No vivo en escasez ni en avaricia.",a:"Joseph Murphy"},
+{t:"Yo soy el cauce perfecto del río de abundancia infinita.",a:"Joseph Murphy"},
+{t:"Nada me falta. Todo circula, todo retorna multiplicado.",a:"Joseph Murphy"},
+{t:"El río no guarda, circula. No teme, avanza. No se estanca, corre.",a:"Joseph Murphy"},
+{t:"Agradezco todo. Respiro abundancia. Vivo en prosperidad.",a:"Joseph Murphy"},
+{t:"El que agradece lo pequeño, multiplica lo pequeño en grande.",a:"Joseph Murphy"},
+{t:"Yo declaro que todo bloqueo se disuelve. Mi prosperidad fluye sin obstáculos.",a:"Joseph Murphy"},
+
+// JOSEPH MURPHY - ÁRBOL DE LA PALABRA VIVA (28)
+{t:"El decreto es orden, no súplica. Es ley, no esperanza.",a:"Joseph Murphy"},
+{t:"Tú siembras, ella produce. Tú decretas, ella ejecuta.",a:"Joseph Murphy"},
+{t:"Tu subconsciente es tierra fértil. Acepta y al aceptar reproduce.",a:"Joseph Murphy"},
+{t:"Lo que se imprime en tu subconsciente con emoción se expresará en tu realidad.",a:"Joseph Murphy"},
+{t:"La duda es el veneno de la mente creativa.",a:"Joseph Murphy"},
+{t:"Cada célula de mi cuerpo está viva con la luz curativa de Dios.",a:"Joseph Murphy"},
+{t:"La inteligencia curativa de Dios está operando ahora en cada célula de mi cuerpo.",a:"Joseph Murphy"},
+{t:"Soy una fuente de ideas prósperas. Mi vida tiene dirección clara.",a:"Joseph Murphy"},
+{t:"Donde yo voy, Dios va conmigo.",a:"Joseph Murphy"},
+{t:"Yo soy paz, yo soy protección. Yo soy intocable en el bien.",a:"Joseph Murphy"},
+{t:"Cancelo este temor. El amor disuelve todo miedo.",a:"Joseph Murphy"},
+{t:"Yo me perdono completamente. Aprendo, crezco, me libero.",a:"Joseph Murphy"},
+{t:"La inspiración fluye en mí como un río inagotable.",a:"Joseph Murphy"},
+{t:"Mi voz es clara, segura y magnética.",a:"Joseph Murphy"},
+{t:"Aprendo con facilidad, rapidez y gozo.",a:"Joseph Murphy"},
+{t:"Yo soy manifestación viva. Mi palabra crea, mi fe ejecuta, mi mente obedece.",a:"Joseph Murphy"},
+{t:"Decretado está, cumplido es.",a:"Joseph Murphy"},
+{t:"Yo soy el dueño de mi palabra y mi mundo.",a:"Joseph Murphy"},
+{t:"Decreto solo el bien. Recibo solo el bien. Comparto solo el bien.",a:"Joseph Murphy"},
+{t:"Desde hoy mi vida es un árbol eterno de frutos benditos.",a:"Joseph Murphy"},
+{t:"Cada vez que hablas con intención, siembras en el campo fértil de tu subconsciente.",a:"Joseph Murphy"},
+{t:"Decreto salud perfecta en cada célula de mi cuerpo. Así es y así será.",a:"Joseph Murphy"},
+{t:"Mi mente está en calma. Nada externo me domina.",a:"Joseph Murphy"},
+{t:"Estoy rodeado de luz divina. Ningún mal puede tocarme.",a:"Joseph Murphy"},
+{t:"Mis huesos son flexibles, mi sangre es vibrante, mi cuerpo es un templo en armonía.",a:"Joseph Murphy"},
+{t:"Mi memoria es perfecta, ordenada y confiable.",a:"Joseph Murphy"},
+{t:"Mi mente es ágil. Cada concepto se fija y fluye en mí.",a:"Joseph Murphy"},
+{t:"Todo está bien en mi mundo. Entrego mis pensamientos al amor infinito.",a:"Joseph Murphy"},
+
+// EMMET FOX - CUANDO DIOS HABLA EN SILENCIO (28)
+{t:"Dios no grita. El espíritu susurra.",a:"Emmet Fox"},
+{t:"Solo el recipiente vacío puede recibir.",a:"Emmet Fox"},
+{t:"Estad quietos y conoced que yo soy Dios. — Salmo 46:10",a:"Emmet Fox"},
+{t:"La verdadera quietud es un estado de expectativa sagrada.",a:"Emmet Fox"},
+{t:"La voz de Dios es calma, seguridad, certeza. Nunca con miedo.",a:"Emmet Fox"},
+{t:"El bien nunca se pierde.",a:"Emmet Fox"},
+{t:"El silencio verdadero no es la ausencia de vida, sino la plenitud del ser.",a:"Emmet Fox"},
+{t:"La perseverancia vale más que la perfección.",a:"Emmet Fox"},
+{t:"El ego teme el silencio porque allí pierde su dominio.",a:"Emmet Fox"},
+{t:"La música no vive solo en las notas, sino en los silencios entre ellas.",a:"Emmet Fox"},
+{t:"La paz imperturbable es la paz de Cristo que duerme en la barca.",a:"Emmet Fox"},
+{t:"El silencio restaura las fuerzas como un manantial oculto en el desierto.",a:"Emmet Fox"},
+{t:"El alma que sabe callar sabe amar.",a:"Emmet Fox"},
+{t:"La decisión tomada desde el silencio es la única que permanece.",a:"Emmet Fox"},
+{t:"Haz del silencio tu hogar y tu vida será un faro de paz.",a:"Emmet Fox"},
+{t:"Lo que hoy parece confuso, mañana será revelación.",a:"Emmet Fox"},
+{t:"Nada se pierde para quien escribe en presencia de Dios.",a:"Emmet Fox"},
+{t:"La verdadera medida de la quietud se revela en la tempestad.",a:"Emmet Fox"},
+{t:"La acción nacida del silencio es certera. La reacción nacida del miedo es débil.",a:"Emmet Fox"},
+{t:"Cuando el mundo grite, que tu alma calle.",a:"Emmet Fox"},
+{t:"Nada puede sacudir el centro donde Dios habita en ti.",a:"Emmet Fox"},
+{t:"Todo lo grande, lo duradero, lo divino, se origina en el silencio.",a:"Emmet Fox"},
+{t:"El silencio es el taller de Dios en tu interior.",a:"Emmet Fox"},
+{t:"La sabiduría ama el orden. El espíritu premia la constancia.",a:"Emmet Fox"},
+{t:"Dios no pide que apagues tu vida, sino que dejes de entorpecer la suya en ti.",a:"Emmet Fox"},
+{t:"El silencio no depende del exterior, sino del centro interior.",a:"Emmet Fox"},
+{t:"La voz de Dios invita, pero no obliga. Impulsa, pero no presiona.",a:"Emmet Fox"},
+{t:"El verdadero pensamiento es dejar que la verdad te encuentre.",a:"Emmet Fox"},
+
+// W.W. ATKINSON - EL ARTE DE PENSAR CON PODER (35)
+{t:"El pensador dormido reacciona. El pensador despierto elige.",a:"W.W. Atkinson"},
+{t:"Despertar significa darse cuenta de que cada pensamiento es un acto voluntario.",a:"W.W. Atkinson"},
+{t:"Quien no observa sus pensamientos vive gobernado por ellos como un títere.",a:"W.W. Atkinson"},
+{t:"El pensador despierto asume la soberanía sobre su mundo interno.",a:"W.W. Atkinson"},
+{t:"Toda suerte, buena o mala, es resultado del estado mental sostenido.",a:"W.W. Atkinson"},
+{t:"El pensamiento es energía en movimiento, vibración pura.",a:"W.W. Atkinson"},
+{t:"Todo pensamiento es una onda. Y toda onda genera una reacción.",a:"W.W. Atkinson"},
+{t:"Pensar sin emoción es soplar sobre brasas frías.",a:"W.W. Atkinson"},
+{t:"Desde ahora yo pienso lo que quiero pensar.",a:"W.W. Atkinson"},
+{t:"La mente no responde a impulsos ocasionales. Responde al mandato constante.",a:"W.W. Atkinson"},
+{t:"Quien piensa por hábito, repite lo viejo. Quien piensa por voluntad, crea lo nuevo.",a:"W.W. Atkinson"},
+{t:"Donde el ruido cesa, comienza la verdadera creación.",a:"W.W. Atkinson"},
+{t:"El silencio no es vacío muerto, sino espacio fértil.",a:"W.W. Atkinson"},
+{t:"La emoción es el combustible del pensamiento creador.",a:"W.W. Atkinson"},
+{t:"Un pensamiento sin emoción es una semilla sin agua.",a:"W.W. Atkinson"},
+{t:"El reino de los cielos está dentro de ti. Tu estado interior es el generador de tu mundo exterior.",a:"W.W. Atkinson"},
+{t:"La ley mental es exacta como la gravedad. No se altera por ruegos.",a:"W.W. Atkinson"},
+{t:"La realidad no ocurre. Se crea. Y el creador es siempre el pensamiento en acción.",a:"W.W. Atkinson"},
+{t:"La voluntad es el piloto. La imaginación es la nave.",a:"W.W. Atkinson"},
+{t:"El entorno no causa el estado mental. El entorno es su proyección.",a:"W.W. Atkinson"},
+{t:"No se necesita cambiar el mundo. Se necesita cambiar la conciencia que lo genera.",a:"W.W. Atkinson"},
+{t:"La mente es un canal que conecta el alma con la mente universal.",a:"W.W. Atkinson"},
+{t:"El pensamiento con propósito, ritmo y dirección se convierte en destino.",a:"W.W. Atkinson"},
+{t:"El pensador supremo no nace. Se revela.",a:"W.W. Atkinson"},
+{t:"No necesitas poder. Ya lo eres.",a:"W.W. Atkinson"},
+{t:"Tu mente es templo, tu palabra es decreto, tu emoción es combustible.",a:"W.W. Atkinson"},
+{t:"Solo aquello a lo que prestamos atención adquiere poder en nuestra vida.",a:"W.W. Atkinson"},
+{t:"El universo responde a lo que tú eres, no a lo que dices ser.",a:"W.W. Atkinson"},
+{t:"La concentración no es tensión. Es enfoque amoroso.",a:"W.W. Atkinson"},
+{t:"La visualización no es fantasía. Es arquitectura mental.",a:"W.W. Atkinson"},
+{t:"La imagen mental sostenida con fe es la semilla de la realidad futura.",a:"W.W. Atkinson"},
+{t:"La voluntad dirige, la imaginación modela. La realidad obedece.",a:"W.W. Atkinson"},
+{t:"Donde la voluntad y la imaginación trabajan como uno, allí la realidad se doblega.",a:"W.W. Atkinson"},
+{t:"La mente que piensa así no es víctima de los hechos. Es autora de ellos.",a:"W.W. Atkinson"},
+{t:"Cuando pienses en paz, el universo entero se abrirá ante ti.",a:"W.W. Atkinson"},
+
+// PARAMAHANSA YOGANANDA - LEY Y AMOR (28)
+{t:"El hombre se convierte en aquello que medita constantemente.",a:"P. Yogananda"},
+{t:"El aliento es la puerta maestra de la sanación.",a:"P. Yogananda"},
+{t:"La oración científica es el puente entre el deseo humano y la respuesta divina.",a:"P. Yogananda"},
+{t:"La intuición es la voz de Dios en el alma humana. Quien la sigue no hierra el camino.",a:"P. Yogananda"},
+{t:"La luz divina restaura y renueva cada célula de mi ser. Soy salud, soy vida, soy plenitud.",a:"P. Yogananda"},
+{t:"La disciplina es la guardiana de la libertad.",a:"P. Yogananda"},
+{t:"La gracia no anula el esfuerzo, sino que lo corona y lo trasciende.",a:"P. Yogananda"},
+{t:"La paz que no depende de las circunstancias brota de la conexión íntima con la fuente.",a:"P. Yogananda"},
+{t:"Todo lo que existe vibra.",a:"P. Yogananda"},
+{t:"El AUM es la firma audible de la presencia divina.",a:"P. Yogananda"},
+{t:"Un pensamiento de amor eleva la vibración y predispone al entorno a responder con gracia.",a:"P. Yogananda"},
+{t:"La respiración profunda, pausada y consciente restaura la calma interior.",a:"P. Yogananda"},
+{t:"Afirmar no es negar la realidad, sino reeducar el subconsciente.",a:"P. Yogananda"},
+{t:"Agradece, confía y permanece en paz. La ley nunca falla.",a:"P. Yogananda"},
+{t:"La imaginación es el instrumento con el que el alma participa en la creación.",a:"P. Yogananda"},
+{t:"Todo lo que el corazón concibe con profundidad y sostiene con fe se hace carne.",a:"P. Yogananda"},
+{t:"La intuición no grita ni demanda. Susurra en lo profundo.",a:"P. Yogananda"},
+{t:"Cuando la mente se aquieta, la verdad se revela espontáneamente.",a:"P. Yogananda"},
+{t:"Si al pensar en una opción sientes paz, esa es la señal.",a:"P. Yogananda"},
+{t:"La prosperidad auténtica es la expansión natural de la utilidad y del gozo.",a:"P. Yogananda"},
+{t:"La generosidad auténtica no empobrece, sino que enriquece a quien la practica.",a:"P. Yogananda"},
+{t:"Busca primero la utilidad y el gozo, y todo lo demás vendrá por añadidura.",a:"P. Yogananda"},
+{t:"Las células del cuerpo obedecen las órdenes de la mente consciente.",a:"P. Yogananda"},
+{t:"Mi cuerpo descansa en la paz divina. La salud se restaura mientras duermo.",a:"P. Yogananda"},
+{t:"Los grandes cambios surgen de la perseverancia en lo pequeño.",a:"P. Yogananda"},
+{t:"La rendición confiada coloca todos los frutos en manos de la sabiduría suprema.",a:"P. Yogananda"},
+{t:"Permanece en mí y yo en ti.",a:"P. Yogananda"},
+{t:"Estoy atento. Estoy en paz. Mi voluntad es firme y tranquila.",a:"P. Yogananda"},
+
+// NAPOLEÓN HILL - ANTES DEL ORO (29)
+{t:"La riqueza no se piensa, se siente. Y solo cuando se siente con intensidad comienza a existir.",a:"Napoleón Hill"},
+{t:"Lo que usted siente con certeza, el mundo lo ejecuta.",a:"Napoleón Hill"},
+{t:"El universo no responde al pensamiento débil. Responde a la emoción sostenida.",a:"Napoleón Hill"},
+{t:"El oro no se encuentra con mapas, se encuentra con el corazón.",a:"Napoleón Hill"},
+{t:"El sentimiento precede al oro.",a:"Napoleón Hill"},
+{t:"El deseo ardiente, sellado y dirigido, mueve trenes enteros.",a:"Napoleón Hill"},
+{t:"La geometría del deseo ardiente se mide: intensidad, duración y foco.",a:"Napoleón Hill"},
+{t:"El deseo estructurado transforma. El deseo desordenado arrastra.",a:"Napoleón Hill"},
+{t:"El subconsciente no obedece palabras vacías. Solo responde a imágenes cargadas de emoción.",a:"Napoleón Hill"},
+{t:"Lo que usted siente con persistencia será más poderoso que cualquier herramienta técnica.",a:"Napoleón Hill"},
+{t:"Uno no inventa por la mente. Inventa por la necesidad de lo que aún no existe.",a:"Napoleón Hill"},
+{t:"La fe es la emoción del deseo cumplido que se siente como presente.",a:"Napoleón Hill"},
+{t:"La riqueza no llega como recompensa. Llega como eco de una emoción total sostenida.",a:"Napoleón Hill"},
+{t:"El oro no llega por azar. Llega porque no tiene otra opción.",a:"Napoleón Hill"},
+{t:"El trabajo no produce riqueza. Es la descarga natural del sentimiento interno de riqueza.",a:"Napoleón Hill"},
+{t:"Un acto sencillo hecho con espíritu de riqueza vale más que 1000 horas de labor mecánica.",a:"Napoleón Hill"},
+{t:"El entorno externo es un espejo de lo que su emoción dominante sostiene en su interior.",a:"Napoleón Hill"},
+{t:"Cuando lo arregle para su emoción, el mundo comenzará a arreglarse para usted.",a:"Napoleón Hill"},
+{t:"El que se siente rico trabaja como quien confirma una verdad interior.",a:"Napoleón Hill"},
+{t:"Usted será rico cuando su emoción de riqueza haya desplazado por completo toda duda.",a:"Napoleón Hill"},
+{t:"Sienta como quien ordena. Sienta como quien construye. Sienta como quien ya posee.",a:"Napoleón Hill"},
+{t:"La duda es la grieta por la cual se escapa el oro.",a:"Napoleón Hill"},
+{t:"La pureza emocional no significa perfección. Significa coherencia.",a:"Napoleón Hill"},
+{t:"Trabaje como quien ya es rico. No lo diga, no lo aparente. Siéntalo.",a:"Napoleón Hill"},
+{t:"El espacio que usted habita se convierte en altar de su convicción.",a:"Napoleón Hill"},
+{t:"El lenguaje del subconsciente es emocional, no lógico. Es pictórico, no verbal.",a:"Napoleón Hill"},
+{t:"El pensamiento es la chispa, la emoción es la corriente, la imagen sentida es el mensaje.",a:"Napoleón Hill"},
+{t:"El universo reconoce a quien ya está actuando como emisario de una riqueza sentida.",a:"Napoleón Hill"},
+{t:"Cada mañana usted debe revivir su visión como una escena sentida profundamente.",a:"Napoleón Hill"},
+
+// JOSEPH MURPHY - MAPA ESMERALDA (32)
+{t:"Toda célula es mente organizada. Todo órgano es pensamiento solidificado.",a:"Joseph Murphy"},
+{t:"Tu cuerpo no es un campo de batalla, es un campo de cultivo. Siembra luz, cosecharás luz.",a:"Joseph Murphy"},
+{t:"Mis células obedecen la ley divina. El patrón original de mi cuerpo es armonía.",a:"Joseph Murphy"},
+{t:"Toda enfermedad es una distorsión del patrón original. Toda curación es un retorno al diseño arquetípico.",a:"Joseph Murphy"},
+{t:"Tu cuerpo responde a decretos. Cada célula es un escriba atento.",a:"Joseph Murphy"},
+{t:"El cuerpo de carne es una sombra. La luz está en tu mente.",a:"Joseph Murphy"},
+{t:"Toda palabra es una semilla vibratoria. Cada célula oye.",a:"Joseph Murphy"},
+{t:"La vibración que tú emites determina tu salud, no tus deseos racionales.",a:"Joseph Murphy"},
+{t:"El sonido reestructura el campo electromagnético.",a:"Joseph Murphy"},
+{t:"El aire me vivifica, mis pensamientos fluyen, el espíritu circula en mí.",a:"Joseph Murphy"},
+{t:"Yo filtro mis pensamientos. Mi mente limpia. Solo lo verdadero circula en mí.",a:"Joseph Murphy"},
+{t:"El pasado está disuelto en la gracia eterna. Yo soy libre ahora. Mi historia es luz.",a:"Joseph Murphy"},
+{t:"Yo redimo esta memoria. Yo soy el dueño de mi historia. Todo se reescribe en la luz.",a:"Joseph Murphy"},
+{t:"Este espacio es luz. Cada rincón vibra en orden. Mi cuerpo reconoce esta frecuencia.",a:"Joseph Murphy"},
+{t:"Yo soy limpio por dentro y por fuera. Mi espacio refleja mi armonía.",a:"Joseph Murphy"},
+{t:"Este hogar es mi templo. Cada pared sostiene mi bienestar.",a:"Joseph Murphy"},
+{t:"Lo que he recibido, lo comparto. Lo que bendigo crece. Yo soy multiplicador de luz.",a:"Joseph Murphy"},
+{t:"Tú no estás roto. Tú estás en proceso.",a:"Joseph Murphy"},
+{t:"No necesitas fórmulas secretas ni intermediarios místicos. El poder de regenerar está en ti.",a:"Joseph Murphy"},
+{t:"Cada pensamiento que albergas activa procesos bioquímicos que se convierten en síntomas o en salud.",a:"Joseph Murphy"},
+{t:"No esperes a enfermarte para reprogramar tus pensamientos. Hazlo ahora.",a:"Joseph Murphy"},
+{t:"El espacio vibra y tú vibras con él.",a:"Joseph Murphy"},
+{t:"Tu casa puede enfermarte o sanar según como la codifiques.",a:"Joseph Murphy"},
+{t:"No puedes sanar tu piel sin mirar tu entorno.",a:"Joseph Murphy"},
+{t:"La mayor prisión del ser humano no es el presente ni el futuro. Es el pasado no sanado.",a:"Joseph Murphy"},
+{t:"Sanar el tiempo es sanar el cuerpo.",a:"Joseph Murphy"},
+{t:"Enseñar no es adoctrinar. Enseñar es testimoniar.",a:"Joseph Murphy"},
+{t:"Mi mente es firme. Mis manos están en paz. Yo soy fortaleza divina.",a:"Joseph Murphy"},
+{t:"El milagro es la ley natural aplicada con fe constante e intención elevada.",a:"Joseph Murphy"},
+{t:"Lo orgánico no es causa, es efecto. La carne no crea la idea, es la idea quien le da forma.",a:"Joseph Murphy"},
+{t:"Tu cuerpo se convierte en lo que tu mente cree.",a:"Joseph Murphy"},
+{t:"No declares lo que ves. Decreta lo que es.",a:"Joseph Murphy"},
+
+// JOSEPH MURPHY - DECISIONES (30)
+{t:"Toda decisión verdadera es una afirmación de fe operativa.",a:"Joseph Murphy"},
+{t:"Decidir no es un acto lógico, es un acto espiritual.",a:"Joseph Murphy"},
+{t:"La decisión perfecta es la que armoniza con la sabiduría interior.",a:"Joseph Murphy"},
+{t:"Dejo que la sabiduría en mí elija ahora.",a:"Joseph Murphy"},
+{t:"No existe tal cosa como una decisión neutral.",a:"Joseph Murphy"},
+{t:"El hombre de doble ánimo es inconstante en todos sus caminos.",a:"Joseph Murphy"},
+{t:"La verdadera paz no es la ausencia de movimiento, sino la presencia de dirección.",a:"Joseph Murphy"},
+{t:"Toda decisión auténtica se reconoce por la paz que deja.",a:"Joseph Murphy"},
+{t:"La paz es el árbitro que Dios colocó en tu alma para que nunca te pierdas.",a:"Joseph Murphy"},
+{t:"No sigas la voz más fuerte. Sigue la más pacífica.",a:"Joseph Murphy"},
+{t:"La sabiduría no grita, no presiona. La sabiduría susurra.",a:"Joseph Murphy"},
+{t:"Mi mente está fija en el bien. La sabiduría en mí decide con orden perfecto.",a:"Joseph Murphy"},
+{t:"La provisión del infinito fluye hacia mí con orden perfecto.",a:"Joseph Murphy"},
+{t:"En silencio y confianza está mi fortaleza.",a:"Joseph Murphy"},
+{t:"Mi decisión está sellada en paz. Camino en firmeza y gracia.",a:"Joseph Murphy"},
+{t:"La paz de Dios gobierna mis decisiones.",a:"Joseph Murphy"},
+{t:"Dios no nos ha dado espíritu de cobardía, sino de poder, amor y dominio propio.",a:"Joseph Murphy"},
+{t:"Primero paz, luego decisión.",a:"Joseph Murphy"},
+{t:"Lo que fue ahora sirve a mi bien. Lo entrego, lo bendigo, lo libero.",a:"Joseph Murphy"},
+{t:"No pudiste haber elegido mejor en aquel momento, dado el nivel de conciencia que tenías.",a:"Joseph Murphy"},
+{t:"El alma no avanza por olvido, sino por comprensión.",a:"Joseph Murphy"},
+{t:"Nada fue en vano. Nada se pierde en la economía del espíritu.",a:"Joseph Murphy"},
+{t:"Mi cuerpo responde a la paz de mi alma.",a:"Joseph Murphy"},
+{t:"Prospero en todo, porque la sabiduría en mí elige el camino perfecto.",a:"Joseph Murphy"},
+{t:"Todo coopera para mi bien. Todo está guiado. Todo responde al orden perfecto.",a:"Joseph Murphy"},
+{t:"Elige lo que más bendice, lo que más edifica, lo que más sirve.",a:"Joseph Murphy"},
+{t:"Camino en relaciones que elevan mi conciencia.",a:"Joseph Murphy"},
+{t:"La regla de oro: haz a otros lo que quisieras que te hagan a ti.",a:"Joseph Murphy"},
+{t:"Cada pensamiento de temor es una semilla abortiva. No siembres lo que luego lamentarás.",a:"Joseph Murphy"},
+{t:"Confía en el Señor con todo tu corazón y no te apoyes en tu propia prudencia.",a:"Joseph Murphy"},
+
+// ALEISTER CROWLEY - RIQUEZA MÁGICA (40)
+{t:"Cada ser traza su trayectoria única, inconfundible, inevitable.",a:"A. Crowley"},
+{t:"Todo sufrimiento brota de la fricción con trayectorias que no nos pertenecen.",a:"A. Crowley"},
+{t:"El hombre que no conoce su voluntad es sombra arrastrada por vientos ajenos.",a:"A. Crowley"},
+{t:"A cada uno su estrella. A cada estrella su órbita. A cada órbita su gloria.",a:"A. Crowley"},
+{t:"La verdadera voluntad se manifiesta por continuidad sin fricción y aumento espontáneo de energía.",a:"A. Crowley"},
+{t:"Todo acto que produce cansancio, confusión o arrepentimiento no es voluntad, sino desviación.",a:"A. Crowley"},
+{t:"Tu única salvación es la ciencia rigurosa de ti mismo.",a:"A. Crowley"},
+{t:"El pecado supremo es la restricción: negar la voluntad, disfrazarla, traicionarla.",a:"A. Crowley"},
+{t:"Cada hombre y cada mujer es una estrella.",a:"A. Crowley"},
+{t:"El capricho es efímero. La voluntad es inexorable como la órbita de los astros.",a:"A. Crowley"},
+{t:"No busques consuelo en dogmas ajenos. Tu poder está en tu centro.",a:"A. Crowley"},
+{t:"Sin juramento no hay obra. Sin registro no hay ciencia.",a:"A. Crowley"},
+{t:"El registro mágico es el espejo donde se refleja la verdad desnuda.",a:"A. Crowley"},
+{t:"Quien se miente en el registro se miente en la vida.",a:"A. Crowley"},
+{t:"No hay mandato exterior, sino revelación interior.",a:"A. Crowley"},
+{t:"El dominio no es negación, sino conducción.",a:"A. Crowley"},
+{t:"El cuerpo es templo y laboratorio, jamás prisión ni mercado.",a:"A. Crowley"},
+{t:"El mago ama sin poseer, goza sin mendicar, ofrece sin pedir recompensa.",a:"A. Crowley"},
+{t:"La libertad consiste en elegir y ejecutar según la estrella.",a:"A. Crowley"},
+{t:"Lo que no sirve a la voluntad será expulsado o transformado.",a:"A. Crowley"},
+{t:"La defensa es principio de higiene, no de paranoia.",a:"A. Crowley"},
+{t:"El primer deber es identificar drenajes de energía.",a:"A. Crowley"},
+{t:"Más vale un aliado fiel que 100 aduladores.",a:"A. Crowley"},
+{t:"El dinero es instrumento, fluido, canal de la voluntad.",a:"A. Crowley"},
+{t:"Lo que se da se libera. Lo que se retiene sin causa se pudre.",a:"A. Crowley"},
+{t:"La prueba es señal de avance, no de condena.",a:"A. Crowley"},
+{t:"El oro solo se separa de la escoria bajo el crisol.",a:"A. Crowley"},
+{t:"La espada se templa en el azote de la llama.",a:"A. Crowley"},
+{t:"Transformar el fracaso en poder, la herida en conocimiento, la caída en impulso.",a:"A. Crowley"},
+{t:"El amor bajo voluntad es ley.",a:"A. Crowley"},
+{t:"No mendigar, no avasallar, no diluir la ley personal.",a:"A. Crowley"},
+{t:"Prosperidad es la consecuencia lógica de la alineación entre el propósito individual y la mecánica universal.",a:"A. Crowley"},
+{t:"El mago opera en secreto, consagra en secreto, agradece en secreto.",a:"A. Crowley"},
+{t:"Cada quien es rey y reina en su propio círculo.",a:"A. Crowley"},
+{t:"La serenidad es la calma del león dormido.",a:"A. Crowley"},
+{t:"Quien persevera no teme la prueba ni se angustia por la hordalía.",a:"A. Crowley"},
+{t:"La victoria es silencio. La corona es serenidad.",a:"A. Crowley"},
+{t:"El ego social debe ser sacrificado en el altar de la individualidad divina.",a:"A. Crowley"},
+{t:"La energía sexual es el combustible universal de la gran obra.",a:"A. Crowley"},
+{t:"El noble desvío que se registra es mil veces preferible al autoengaño.",a:"A. Crowley"}
+];
+
+// ═══════════════════════════════════════════
+// 50 ORACIONES
+// ═══════════════════════════════════════════
+const prayers=[
+{t:"Señor de mi alma, aquí me tienes. Aparto el ruido de mi mente. Retiro los velos de la prisa y la preocupación. Hazme digno de cruzar el portal de la quietud. Permite que tu voz se escuche en el fondo de mi ser.",a:"Emmet Fox"},
+{t:"Padre eterno, que en el silencio de este momento yo reconozca tu presencia en mi interior. Haz que mi mente se aquiete, que mi corazón se abra, que mi alma te conozca más allá de las palabras.",a:"Emmet Fox"},
+{t:"Señor de la paz, enséñame a dormir en tu silencio aunque la tormenta ruja a mi alrededor. Que el miedo no me arrastre, que la prisa no me domine. Haz de tu silencio mi fuerza y mi refugio.",a:"Emmet Fox"},
+{t:"Padre, enséñame a escuchar con el alma. Haz que mi corazón distinga tu voz entre todos los sonidos del mundo. Que tu guía serena se imponga sobre todo deseo ansioso.",a:"Emmet Fox"},
+{t:"Padre fiel, dame perseverancia en el silencio, paciencia en la espera, humildad para aceptar mi camino. Que cada día honre los silencios de mi alma y confíe en tu presencia.",a:"Emmet Fox"},
+{t:"Señor, dame ojos para ver los frutos de tu silencio en mi vida. Que la paz, la claridad y la energía renovada sean mi testimonio silencioso ante el mundo.",a:"Emmet Fox"},
+{t:"Padre eterno, hoy consagro mi vida al silencio que es tu voz. Haz de mi mente un templo de paz, de mi corazón una fuente de quietud, de mis palabras instrumentos de tu amor.",a:"Emmet Fox"},
+{t:"Espíritu, yo soy. Desde este Yo Soy, todo lo demás encuentra su sitio.",a:"Emmet Fox"},
+{t:"Gracias por lo que fuiste. Pero ahora el Cristo vive en mí y él es mi única identidad.",a:"Emmet Fox"},
+{t:"No soy el personaje, no soy el pasado, no soy la historia. Yo soy la frecuencia del Cristo reconociéndose a sí misma en mí.",a:"Emmet Fox"},
+{t:"Dejo que la sabiduría en mí elija ahora. Mi mente está fija en el bien. La sabiduría en mí decide con orden perfecto.",a:"Joseph Murphy"},
+{t:"En silencio y confianza está mi fortaleza. Gracias porque he sido guiado.",a:"Joseph Murphy"},
+{t:"Mi decisión está sellada en paz. Camino en firmeza y gracia. Todo coopera para mi bien.",a:"Joseph Murphy"},
+{t:"La paz de Dios gobierna mis decisiones. Confío en el Señor con todo mi corazón y no me apoyo en mi propia prudencia.",a:"Joseph Murphy"},
+{t:"Lo que fue ahora sirve a mi bien. Lo entrego, lo bendigo, lo libero. Nada fue en vano.",a:"Joseph Murphy"},
+{t:"Gracias, espíritu infinito, porque ya está hecho. Mis células obedecen la ley divina. El patrón original de mi cuerpo es armonía.",a:"Joseph Murphy"},
+{t:"El aire me vivifica, mis pensamientos fluyen, el espíritu circula en mí. Soy salud, soy vida, soy plenitud.",a:"Joseph Murphy"},
+{t:"Devuelvo esta idea a la luz. Yo elijo lo verdadero. Mi mente se limpia. Solo circulan en mí pensamientos de salud, poder y verdad.",a:"Joseph Murphy"},
+{t:"El pasado está disuelto en la gracia eterna. Yo redimo esta memoria. Yo soy el dueño de mi historia. Todo se reescribe en la luz.",a:"Joseph Murphy"},
+{t:"Este hogar es mi templo. Cada pared sostiene mi bienestar. Aquí resido en armonía. Mi cuerpo reconoce esta frecuencia.",a:"Joseph Murphy"},
+{t:"Lo que he recibido, lo comparto. Lo que bendigo crece. Yo soy multiplicador de luz.",a:"Joseph Murphy"},
+{t:"Yo soy el dueño de mi palabra y mi mundo. Decreto solo el bien. Recibo solo el bien. Comparto solo el bien.",a:"Joseph Murphy"},
+{t:"Desde hoy mi vida es un árbol eterno de frutos benditos. Mi palabra es ley. Mi fe ejecuta. Mi mente obedece.",a:"Joseph Murphy"},
+{t:"Todo está bien en mi mundo. Entrego mis pensamientos al amor infinito. Decretado está, cumplido es.",a:"Joseph Murphy"},
+{t:"El dinero es un río dorado que fluye en mí y a través de mí. Nada se estanca, todo circula, todo retorna multiplicado.",a:"Joseph Murphy"},
+{t:"Mi corazón de oro late con la abundancia del infinito. Cada latido es riqueza, cada exhalación es prosperidad. Todo circula, nada falta.",a:"Joseph Murphy"},
+{t:"Yo soy el cauce perfecto del río de abundancia infinita. Nada me falta. Todo circula, todo retorna multiplicado.",a:"Joseph Murphy"},
+{t:"Estoy atento. Estoy en paz. Mi voluntad es firme y tranquila. La verdadera concentración florece en un terreno de relajación consciente.",a:"P. Yogananda"},
+{t:"Gracias, Padre, porque ya está hecho. Todo está bien. Estoy en paz. Confío en la ley.",a:"P. Yogananda"},
+{t:"Que la disciplina sea mi aliada. Que mi energía se eleve hacia la luz. Que la gracia me colme más allá de mis esfuerzos.",a:"P. Yogananda"},
+{t:"Hoy mi mente sea clara, mi corazón esté abierto y mi intuición me guíe en cada paso.",a:"P. Yogananda"},
+{t:"Yo soy salud perfecta. La energía de Dios fluye a través de mí como un río vivificante.",a:"Napoleón Hill"},
+{t:"Cada mañana revivo mi visión como una escena sentida profundamente. Siento como quien ordena, como quien construye, como quien ya posee.",a:"Napoleón Hill"},
+{t:"Dinero querido, te honro y te respeto. Eres mi aliado divino y vienes a mí multiplicado y bendecido.",a:"F. Scovel Shinn"},
+{t:"Dinero querido, te libero con amor para que bendigas a otros y regreses a mí multiplicado por diez.",a:"F. Scovel Shinn"},
+{t:"Dinero bendito, te recibo con alegría y gratitud. Eres señal de la abundancia que fluye a través de mí.",a:"F. Scovel Shinn"},
+{t:"Dinero querido, rompo en este instante todos los patrones de escasez de mi linaje familiar. Establezco un nuevo legado de abundancia para las generaciones futuras.",a:"F. Scovel Shinn"},
+{t:"Soy canal abierto y transparente de la provisión universal. El dinero me conoce, me busca y fluye a través de mí con fidelidad y abundancia.",a:"F. Scovel Shinn"},
+{t:"Yo Soy hijo de Dios. Decreto la salud perfecta, el amor perfecto, la paz perfecta y la abundancia perfecta en mi vida. Lo que decreto en la tierra es decretado en el cielo.",a:"Emmet Fox"},
+{t:"Yo Soy la salud de Dios. El Espíritu Santo vivifica cada célula, cada órgano, cada fibra de mi ser. Mi cuerpo resplandece con la luz de la vida eterna.",a:"Emmet Fox"},
+{t:"Yo Soy la abundancia divina manifestándose ahora. Mis necesidades están cubiertas antes de que surjan. Mi provisión fluye constante, perfecta, inagotable.",a:"Emmet Fox"},
+{t:"Yo Soy la paz de Dios manifestándose ahora en mí y a través de mí. Mi mente está serena, mi corazón está tranquilo, mis emociones están en calma.",a:"Emmet Fox"},
+{t:"Yo Soy rodeado por la luz invencible de Dios. Camino en seguridad, duermo en paz, vivo en la perfecta protección del Altísimo.",a:"Emmet Fox"},
+{t:"Bendigo y libero el pasado. No me ato a ningún error, a ningún resentimiento, a ninguna culpa. Todo está perdonado, todo está purificado, todo está sanado en la luz de Cristo.",a:"Emmet Fox"},
+{t:"Yo Soy el Alfa y la Omega, el principio y el fin. Desde este centro creador, toda mi vida se ordena perfectamente.",a:"Neville Godard"},
+{t:"Habito el fin como principio. Siéntelo como si ya fuese. El universo se rinde ante la certeza de lo sentido.",a:"Neville Godard"},
+{t:"No hay afuera. Todo ocurre en mi conciencia. Yo soy la fuente de toda mi experiencia. Desde este lugar de poder, creo mi realidad.",a:"Neville Godard"},
+{t:"Yo Soy guiado en cada paso por la sabiduría infinita de Dios. Cada decisión que tomo es perfecta, armoniosa, bendita.",a:"Emmet Fox"},
+{t:"Mi mente fluye, mi dinero fluye, mi vida fluye. Mi subconsciente es un banco infinito. Yo deposito ideas de riqueza y recibo cosechas de abundancia.",a:"Joseph Murphy"},
+{t:"Soy próspero ahora. La riqueza fluye en mí. La abundancia me rodea. Mi fe transporta abundancia a cada área de mi vida.",a:"Joseph Murphy"}
+];
+
+// ═══════════════════════════════════════════
+// GRADIENTS
+// ═══════════════════════════════════════════
+const gradients=[
+"linear-gradient(135deg,#0a0a2e 0%,#1a0a3e 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#0d1b2a 0%,#1b0a2e 50%,#0a1628 100%)",
+"linear-gradient(135deg,#0a1628 0%,#16213e 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#1a0a3e 0%,#2d1b69 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#0d2137 0%,#1a3a5c 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#0a2a1a 0%,#0d3b2e 50%,#0a1a2e 100%)",
+"linear-gradient(135deg,#2a0a2e 0%,#1a0a3e 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#0d2b3e 50%,#0a1a2e 100%)",
+"linear-gradient(135deg,#1a1a3e 0%,#0a0a2e 50%,#2d0a3e 100%)",
+"linear-gradient(135deg,#0d1b2a 0%,#1a2a4e 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#0a1a3e 0%,#1a0a2e 50%,#0d2b1a 100%)",
+"linear-gradient(135deg,#1a0a2e 0%,#0a2a3e 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#1a1a3e 50%,#0d0d2a 100%)",
+"linear-gradient(135deg,#0d3b2e 0%,#0a1a2e 50%,#1a0a3e 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#2d1b69 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#16213e 0%,#0a0a2e 50%,#1a0a3e 100%)",
+"linear-gradient(135deg,#0a2a3e 0%,#0d1b2a 50%,#1a0a2e 100%)",
+"linear-gradient(135deg,#0d1b2a 0%,#0a0a2e 50%,#0d3b2e 100%)",
+"linear-gradient(135deg,#2d0a3e 0%,#0a0a2e 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#0a1a2e 0%,#1a2a4e 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#0d2b3e 50%,#1a0a3e 100%)",
+"linear-gradient(135deg,#1a0a3e 0%,#0a1a2e 50%,#0d3b2e 100%)",
+"linear-gradient(135deg,#0d2b3e 0%,#0a0a2e 50%,#1a0a2e 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#2d0a3e 50%,#0d1b2a 100%)",
+"linear-gradient(135deg,#0d1b2a 0%,#0a2a3e 50%,#0a0a2e 100%)",
+"linear-gradient(135deg,#1a2a4e 0%,#0a0a2e 50%,#0d2b3e 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#1a0a3e 50%,#0d3b2e 100%)",
+"linear-gradient(135deg,#0d3b2e 0%,#0a0a2e 50%,#1a0a3e 100%)",
+"linear-gradient(135deg,#0a1a2e 0%,#0d1b2a 50%,#2d1b69 100%)",
+"linear-gradient(135deg,#0a0a2e 0%,#0d1b2a 50%,#0a2a3e 100%)"
+];
+
+// ═══════════════════════════════════════════
+// APP LOGIC
+// ═══════════════════════════════════════════
+let currentDay=0;
+let isRandom=false;
+let touchStartX=0;
+let currentMode='affirm'; // 'affirm' or 'prayer'
+
+function getCurrentArray(){
+return currentMode==='affirm'?affirmations:prayers;
+}
+
+function setMode(mode){
+currentMode=mode;
+document.getElementById('btnAffirm').classList.toggle('active',mode==='affirm');
+document.getElementById('btnPrayer').classList.toggle('active',mode==='prayer');
+isRandom=false;
+const today=Math.floor(Date.now()/86400000);
+const startDay=parseInt(localStorage.getItem('affirm_start_day')||today);
+currentDay=((today-startDay)%getCurrentArray().length+getCurrentArray().length)%getCurrentArray().length;
+showAffirmation(currentDay);
+}
+
+// Init
+function init(){
+createStars();
+loadDay();
+loadSettings();
+updateNotifyBtn();
+}
+
+function createStars(){
+const s=document.getElementById('stars');
+// Big bright stars
+for(let i=0;i<15;i++){
+const star=document.createElement('div');
+star.className='star';
+const size=Math.random()*4+2;
+star.style.cssText=`width:${size}px;height:${size}px;
+top:${Math.random()*100}%;left:${Math.random()*100}%;
+--dur:${Math.random()*4+3}s;animation-delay:${Math.random()*5}s;
+box-shadow:0 0 ${size*3}px ${size}px rgba(255,255,255,0.4)`;
+s.appendChild(star);
+}
+// Small dim stars
+for(let i=0;i<80;i++){
+const star=document.createElement('div');
+star.className='star';
+const size=Math.random()*1.5+0.5;
+star.style.cssText=`width:${size}px;height:${size}px;
+top:${Math.random()*100}%;left:${Math.random()*100}%;
+--dur:${Math.random()*3+2}s;animation-delay:${Math.random()*4}s;
+opacity:${Math.random()*0.5+0.2}`;
+s.appendChild(star);
+}
+// Nebula glow effects
+for(let i=0;i<3;i++){
+const nebula=document.createElement('div');
+const size=Math.random()*200+100;
+const colors=['rgba(100,50,150,0.03)','rgba(50,100,150,0.03)','rgba(150,50,100,0.03)'];
+nebula.style.cssText=`position:absolute;width:${size}px;height:${size}px;
+top:${Math.random()*100}%;left:${Math.random()*100}%;
+background:radial-gradient(circle,${colors[i%3]} 0%,transparent 70%);
+border-radius:50%;pointer-events:none`;
+s.appendChild(nebula);
+}
+}
+
+function loadDay(){
+const saved=localStorage.getItem('affirm_current_day');
+if(saved!==null)currentDay=parseInt(saved);
+const today=Math.floor(Date.now()/86400000);
+const startDay=parseInt(localStorage.getItem('affirm_start_day')||today);
+if(!localStorage.getItem('affirm_start_day'))localStorage.setItem('affirm_start_day',today);
+const dayOfYear=((today-startDay)%affirmations.length+affirmations.length)%affirmations.length;
+if(!isRandom)currentDay=dayOfYear;
+showAffirmation(currentDay);
+}
+
+function showAffirmation(index){
+const card=document.getElementById('card');
+const arr=getCurrentArray();
+const a=arr[index];
+document.getElementById('affirmation').textContent=a.t;
+document.getElementById('author').textContent='— '+a.a;
+const label=currentMode==='affirm'?'AFIRMACIÓN':'ORACIÓN';
+document.getElementById('dayCounter').textContent=`${label} ${index+1} DE ${arr.length}`;
+card.className='card fade-in';
+changeBackground(index);
+localStorage.setItem('affirm_current_day',index);
+}
+
+function changeBackground(index){
+const g=gradients[index%gradients.length];
+document.body.style.background=g;
+}
+
+function nextDay(){
+isRandom=false;
+currentDay=(currentDay+1)%getCurrentArray().length;
+showAffirmation(currentDay);
+}
+
+function prevDay(){
+isRandom=false;
+currentDay=(currentDay-1+getCurrentArray().length)%getCurrentArray().length;
+showAffirmation(currentDay);
+}
+
+function randomAffirmation(){
+isRandom=true;
+const idx=Math.floor(Math.random()*getCurrentArray().length);
+showAffirmation(idx);
+}
+
+function shareAffirmation(){
+const arr=getCurrentArray();
+const a=arr[currentDay];
+const label=currentMode==='affirm'?'✨ Afirmación':'🙏 Oración';
+const text=`${label}: "${a.t}"\n— ${a.a}\n\n📱 App Afirmaciones y Oraciones Diarias`;
+if(navigator.share){
+navigator.share({text:text}).catch(()=>{});
+}else{
+navigator.clipboard.writeText(text).then(()=>showToast('✅ Copiado al portapapeles'));
+}
+}
+
+// Settings
+function toggleSettings(){
+const s=document.getElementById('settings');
+s.classList.toggle('show');
+}
+
+function loadSettings(){
+const s=JSON.parse(localStorage.getItem('affirm_settings')||'{}');
+if(s.morning)document.getElementById('notifMorning').value=s.morning;
+if(s.noon)document.getElementById('notifNoon').value=s.noon;
+if(s.afternoon)document.getElementById('notifAfternoon').value=s.afternoon;
+if(s.night)document.getElementById('notifNight').value=s.night;
+}
+
+function saveSettings(){
+const s={
+morning:document.getElementById('notifMorning').value,
+noon:document.getElementById('notifNoon').value,
+afternoon:document.getElementById('notifAfternoon').value,
+night:document.getElementById('notifNight').value
+};
+localStorage.setItem('affirm_settings',JSON.stringify(s));
+scheduleNotifications(s);
+showToast('✅ Ajustes guardados');
+toggleSettings();
+}
+
+// Notifications
+async function requestNotifications(){
+if(!('Notification' in window)){
+showToast('⚠️ Tu navegador no soporta notificaciones');
+return;
+}
+const perm=await Notification.requestPermission();
+updateNotifyBtn();
+if(perm==='granted'){
+showToast('🔔 ¡Notificaciones activadas!');
+const s=JSON.parse(localStorage.getItem('affirm_settings')||'{}');
+scheduleNotifications(s);
+}else{
+showToast('❌ Notificaciones no permitidas');
+}
+}
+
+function updateNotifyBtn(){
+const btn=document.getElementById('notifyBtn');
+if(!('Notification' in window)){btn.textContent='⚠️ No soportado';return;}
+if(Notification.permission==='granted'){
+btn.textContent='🔔 Notificaciones activadas ✅';
+btn.classList.add('granted');
+}else{
+btn.textContent='🔔 Activar notificaciones';
+btn.classList.remove('granted');
+}
+}
+
+function scheduleNotifications(settings){
+if(Notification.permission!=='granted')return;
+const times=[
+{key:'morning',label:'🌅 Buenos días',emoji:'🌅'},
+{key:'noon',label:'☀️ Medio día',emoji:'☀️'},
+{key:'afternoon',label:'🌤️ Tarde',emoji:'🌤️'},
+{key:'night',label:'🌙 Buenas noches',emoji:'🌙'}
+];
+const now=new Date();
+times.forEach(t=>{
+const timeStr=settings[t.key];
+if(!timeStr)return;
+const[hours,mins]=timeStr.split(':').map(Number);
+const target=new Date(now);
+target.setHours(hours,mins,0,0);
+if(target<=now)target.setDate(target.getDate()+1);
+const delay=target-now;
+setTimeout(()=>{
+const today=Math.floor(Date.now()/86400000);
+const startDay=parseInt(localStorage.getItem('affirm_start_day')||today);
+const idx=((today-startDay)%affirmations.length+affirmations.length)%affirmations.length;
+const a=affirmations[idx];
+new Notification(t.emoji+' Afirmación del día',{
+body:`"${a.t}"\n— ${a.a}`,
+icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✨</text></svg>'
+});
+},delay);
+});
+}
+
+// Toast
+function showToast(msg){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// Music player
+let musicPlaying=false;
+function toggleMusic(){
+const audio=document.getElementById('audioPlayer');
+const btn=document.getElementById('musicBtn');
+const volRow=document.getElementById('volumeRow');
+if(musicPlaying){
+audio.pause();
+btn.innerHTML='<span class="btn-icon">🎵</span> Música';
+btn.classList.remove('active');
+volRow.style.display='none';
+musicPlaying=false;
+}else{
+audio.volume=0.3;
+audio.play().then(()=>{
+btn.innerHTML='<span class="btn-icon">⏸</span> Pausar';
+btn.classList.add('active');
+volRow.style.display='flex';
+volRow.style.justifyContent='center';
+volRow.style.gap='10px';
+volRow.style.alignItems='center';
+volRow.style.marginTop='5px';
+musicPlaying=true;
+}).catch(()=>{
+showToast('🎵 Toca de nuevo para iniciar la música');
+});
+}
+}
+function setVolume(val){
+const audio=document.getElementById('audioPlayer');
+audio.volume=val/100;
+document.getElementById('volumeLabel').textContent=val+'%';
+}
+
+// Swipe
+document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});
+document.addEventListener('touchend',e=>{
+const diff=e.changedTouches[0].clientX-touchStartX;
+if(Math.abs(diff)>80){
+if(diff>0)prevDay();
+else nextDay();
+}
+});
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowRight')nextDay();
+if(e.key==='ArrowLeft')prevDay();
+if(e.key==='r')randomAffirmation();
+});
+
+// Service Worker
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+init();
+</script>
+</body>
+</html>
