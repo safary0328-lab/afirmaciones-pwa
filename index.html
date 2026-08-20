@@ -3521,6 +3521,8 @@ if(activeBtn)activeBtn.classList.add('active-theme');
 
 localStorage.setItem('affirm_theme',key);
 
+shuffledImages=[];
+
 }
 
 function toggleThemePanel(){
@@ -3549,7 +3551,9 @@ Object.entries(themes).forEach(([key,t])=>{
 
   const previewStyle=t.isPhoto&&t.images?`background:url('${t.images[0]}') center/cover`:`background:${t.background}`;
 
-  btn.innerHTML=`<span class="theme-emoji">${t.emoji}</span><div class="theme-preview" style="${previewStyle}"></div><span class="theme-name">${t.name}</span>`;
+  const nameDisplay=t.isPhoto&&t.images?`${t.name} (${t.images.length})`:t.name;
+
+  btn.innerHTML=`<span class="theme-emoji">${t.emoji}</span><div class="theme-preview" style="${previewStyle}"></div><span class="theme-name">${nameDisplay}</span>`;
 
   btn.onclick=()=>{
 
@@ -3869,15 +3873,41 @@ localStorage.setItem('affirm_current_day',index);
 
 }
 
+// Fisher-Yates shuffle para mezclar arrays aleatoriamente
+function shuffleArray(array){
+  const shuffled=[...array];
+  for(let i=shuffled.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+  }
+  return shuffled;
+}
+
+// Variable global para imágenes mezcladas
+let shuffledImages=[];
+
+// Función para obtener imágenes mezcladas (lazy init)
+function getShuffledImages(){
+  if(shuffledImages.length===0){
+    const theme=themes[currentThemeKey];
+    if(theme.isPhoto&&theme.images){
+      shuffledImages=shuffleArray(theme.images);
+    }
+  }
+  return shuffledImages;
+}
+
 function changeBackground(index){
 
 const theme=themes[currentThemeKey];
 
 if(theme.isPhoto&&theme.images){
 
-  const imgIndex=index%theme.images.length;
+  const images=getShuffledImages();
 
-  const imgPath=theme.images[imgIndex];
+  const imgIndex=index%images.length;
+
+  const imgPath=images[imgIndex];
 
   document.body.style.background=`linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('${imgPath}') center/cover no-repeat`;
 
