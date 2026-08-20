@@ -270,16 +270,237 @@ border-radius:12px;padding:12px;font-size:0.8rem;color:rgba(255,200,150,0.9);
 
 margin-top:10px;text-align:center}
 
-/* Responsive */
+/* Mejoras base para móvil */
+*{
+  -webkit-tap-highlight-color:transparent;
+}
 
+html{
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Scroll suave */
+.container{
+  overflow-y:auto;
+  max-height:100vh;
+  padding-bottom:20px;
+}
+
+/* Botones más fáciles de tocar */
+.btn{
+  min-height:44px;
+  min-width:44px;
+}
+
+/* Inputs más fáciles de tocar */
+input, select, button{
+  min-height:44px;
+}
+
+/* Responsive para móviles */
 @media(max-width:480px){
+  /* Contenedor principal */
+  .container{
+    gap:15px;
+    padding:10px;
+  }
+  
+  /* Header */
+  .header h1{
+    font-size:1rem;
+    letter-spacing:1px;
+  }
+  
+  /* Contador de día */
+  .day-counter{
+    font-size:0.75rem;
+    letter-spacing:2px;
+  }
+  
+  /* Card de afirmación */
+  .card{
+    padding:20px 15px;
+    min-height:150px;
+    border-radius:16px;
+  }
+  
+  /* Texto de afirmación */
+  .affirmation-text{
+    font-size:1.1rem;
+    line-height:1.5;
+  }
+  
+  /* Autor */
+  .author{
+    font-size:0.7rem;
+    margin-top:10px;
+  }
+  
+  /* Filas de botones */
+  .btn-row{
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  
+  /* Botones individuales */
+  .btn{
+    padding:8px 14px;
+    font-size:0.7rem;
+    letter-spacing:0.5px;
+  }
+  
+  /* Iconos de botones */
+  .btn-icon{
+    font-size:0.9rem;
+  }
+  
+  /* Panel de configuración */
+  .settings{
+    padding:20px;
+  }
+  
+  .settings h2{
+    font-size:1.3rem;
+  }
+  
+  /* Inputs en ajustes */
+  .settings-group input,
+  .settings-group select{
+    padding:10px;
+    font-size:0.85rem;
+  }
+  
+  /* Botones de notificación */
+  .notify-btn{
+    padding:12px;
+    font-size:0.85rem;
+  }
+  
+  /* Panel de categorías */
+  .categories-overlay{
+    padding:20px;
+  }
+  
+  .categories-overlay h2{
+    font-size:1.3rem;
+  }
+  
+  /* Botones de categoría */
+  .cat-btn{
+    padding:10px 12px;
+    font-size:0.75rem;
+  }
+  
+  /* Panel de música */
+  .music-panel{
+    padding:20px;
+  }
+  
+  .music-panel h2{
+    font-size:1.3rem;
+  }
+  
+  /* Botones de sonido */
+  .sound-btn{
+    padding:10px;
+  }
+  
+  .sound-emoji{
+    font-size:1.2rem;
+  }
+  
+  .sound-name{
+    font-size:0.6rem;
+  }
+  
+  /* Panel de temas */
+  .theme-panel{
+    padding:20px;
+  }
+  
+  .theme-panel h2{
+    font-size:1.3rem;
+  }
+  
+  /* Botones de tema */
+  .theme-btn{
+    padding:15px;
+  }
+  
+  .theme-emoji{
+    font-size:1.5rem;
+  }
+  
+  .theme-name{
+    font-size:0.7rem;
+  }
+  
+  /* Toast */
+  .toast{
+    bottom:20px;
+    padding:12px 20px;
+    font-size:0.8rem;
+  }
+  
+  /* Share modal */
+  .share-modal{
+    padding:20px;
+  }
+  
+  .share-modal h2{
+    font-size:1.3rem;
+  }
+  
+  /* Canvas de compartir */
+  #shareCanvas{
+    max-width:100%;
+    height:auto;
+  }
+  
+  /* Botones de compartir */
+  .share-modal .btn{
+    padding:10px 16px;
+    font-size:0.8rem;
+  }
+  
+  /* Hint de swipe */
+  .swipe-hint{
+    font-size:0.6rem;
+    bottom:10px;
+  }
+  
+  /* Control de volumen */
+  .volume-row{
+    flex-direction:column;
+    gap:5px;
+  }
+  
+  #volumeSlider{
+    width:100px;
+  }
+}
 
-.affirmation-text{font-size:1.3rem}
-
-.card{padding:30px 20px;min-height:200px}
-
-.header h1{font-size:1.1rem}
-
+/* Responsive para tablets */
+@media(min-width:481px) and (max-width:768px){
+  .container{
+    max-width:500px;
+    gap:20px;
+  }
+  
+  .card{
+    padding:35px 25px;
+    min-height:220px;
+  }
+  
+  .affirmation-text{
+    font-size:1.4rem;
+  }
 }
 
 /* Categories panel */
