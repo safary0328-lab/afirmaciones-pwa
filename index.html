@@ -685,6 +685,48 @@ body.theme-photo .card{
 
 }
 
+/* ═══ FAVORITES SYSTEM ═══ */
+
+.fav-btn{
+  position:absolute;top:12px;right:12px;z-index:2;
+  background:none;border:none;cursor:pointer;
+  font-size:1.5rem;padding:8px;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  transition:transform 0.2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.fav-btn:hover{transform:scale(1.15)}
+.fav-btn:active{transform:scale(0.9)}
+.fav-btn.active{animation:heartPulse 0.3s ease}
+
+@keyframes heartPulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.3)}
+  100%{transform:scale(1)}
+}
+
+/* ═══ STREAK COUNTER ═══ */
+
+.streak-counter{
+  font-size:0.8rem;letter-spacing:1px;font-weight:400;
+  color:#D4A574;display:flex;align-items:center;gap:4px;
+  justify-content:center;margin-top:2px;
+}
+.streak-counter .streak-fire{
+  display:inline-block;
+  animation:firePulse 2s ease-in-out infinite;
+}
+@keyframes firePulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.15)}
+}
+
+/* Responsive */
+@media(max-width:480px){
+  .fav-btn{font-size:1.3rem;top:8px;right:8px;padding:6px}
+  .streak-counter{font-size:0.7rem}
+}
+
 </style>
 
 </head>
@@ -707,9 +749,11 @@ body.theme-photo .card{
 
   <div class="day-counter" id="dayCounter">DÍA 1 DE 539</div>
 
-  
+  <div class="streak-counter" id="streakCounter"></div>
 
   <div class="card fade-in" id="card">
+
+    <button class="fav-btn" id="favBtn" onclick="toggleFavorite()">🤍</button>
 
     <div class="affirmation-text" id="affirmation">Cargando...</div>
 
@@ -3540,6 +3584,7 @@ return affirmations;
 function setMode(mode){
 
 currentMode=mode;
+showingFavorites=false;
 
 document.getElementById('btnAffirm').classList.toggle('active',mode==='affirm');
 
@@ -3551,9 +3596,11 @@ const today=Math.floor(Date.now()/86400000);
 
 const startDay=parseInt(localStorage.getItem('affirm_start_day')||today);
 
-currentDay=((today-startDay)%getCurrentArray().length+getCurrentArray().length)%getCurrentArray().length;
-
-showAffirmation(currentDay);
+const arr=getCurrentArray();
+if(arr.length>0){
+  currentDay=((today-startDay)%arr.length+arr.length)%arr.length;
+  showAffirmation(currentDay);
+}
 
 }
 
@@ -3618,6 +3665,7 @@ list.appendChild(btn);
 function selectCategory(cat){
 
 activeCategory=cat;
+showingFavorites=false;
 
 localStorage.setItem('affirm_category',cat);
 
@@ -3673,8 +3721,12 @@ createStars();
 
 if(activeCategory){
 
-document.getElementById('catFilterName').textContent=activeCategory;
-
+if(activeCategory==='__favorites__'){
+  showingFavorites=true;
+  document.getElementById('catFilterName').textContent='❤️ Mis Favoritas';
+}else{
+  document.getElementById('catFilterName').textContent=activeCategory;
+}
 document.getElementById('catFilterBar').classList.add('show');
 
 }
@@ -3832,8 +3884,10 @@ if(theme.isPhoto&&theme.images){
 function nextDay(){
 
 isRandom=false;
+const arr=getCurrentArray();
+if(arr.length===0)return;
 
-currentDay=(currentDay+1)%getCurrentArray().length;
+currentDay=(currentDay+1)%arr.length;
 
 showAffirmation(currentDay);
 
@@ -3842,8 +3896,10 @@ showAffirmation(currentDay);
 function prevDay(){
 
 isRandom=false;
+const arr=getCurrentArray();
+if(arr.length===0)return;
 
-currentDay=(currentDay-1+getCurrentArray().length)%getCurrentArray().length;
+currentDay=(currentDay-1+arr.length)%arr.length;
 
 showAffirmation(currentDay);
 
@@ -3852,8 +3908,10 @@ showAffirmation(currentDay);
 function randomAffirmation(){
 
 isRandom=true;
+const arr=getCurrentArray();
+if(arr.length===0)return;
 
-const idx=Math.floor(Math.random()*getCurrentArray().length);
+const idx=Math.floor(Math.random()*arr.length);
 
 showAffirmation(idx);
 
@@ -5273,11 +5331,232 @@ showAffirmation = function(index) {
 
 };
 
+// ═══════════════════════════════════════════
+// FAVORITES SYSTEM
+// ═══════════════════════════════════════════
+
+let favorites = JSON.parse(localStorage.getItem('affirm_favorites') || '[]');
+let showingFavorites = false;
+
+function getFavoriteKey() {
+  const arr = getCurrentArray();
+  const a = arr[currentDay];
+  return currentMode + ':' + a.t.substring(0, 60);
+}
+
+function isCurrentFavorite() {
+  const key = getFavoriteKey();
+  return favorites.includes(key);
+}
+
+function toggleFavorite() {
+  const key = getFavoriteKey();
+  const btn = document.getElementById('favBtn');
+  const idx = favorites.indexOf(key);
+  
+  if (idx > -1) {
+    favorites.splice(idx, 1);
+    btn.textContent = '🤍';
+    btn.classList.remove('active');
+    showToast('💔 Eliminado de favoritos');
+  } else {
+    favorites.push(key);
+    btn.textContent = '❤️';
+    btn.classList.add('active');
+    showToast('❤️ Agregado a favoritos');
+    setTimeout(() => btn.classList.remove('active'), 350);
+  }
+  
+  localStorage.setItem('affirm_favorites', JSON.stringify(favorites));
+  
+  // If showing favorites and removed one, refresh
+  if (showingFavorites && favorites.length === 0) {
+    showingFavorites = false;
+    activeCategory = null;
+    localStorage.removeItem('affirm_category');
+    document.getElementById('catFilterBar').classList.remove('show');
+  }
+}
+
+function updateFavButton() {
+  const btn = document.getElementById('favBtn');
+  if (isCurrentFavorite()) {
+    btn.textContent = '❤️';
+  } else {
+    btn.textContent = '🤍';
+  }
+}
+
+function getFavoritesArray() {
+  return getCurrentArray().filter((a, i) => {
+    const key = currentMode + ':' + a.t.substring(0, 60);
+    return favorites.includes(key);
+  });
+}
+
+function showFavoritesCategory() {
+  showingFavorites = true;
+  activeCategory = '__favorites__';
+  localStorage.setItem('affirm_category', '__favorites__');
+  document.getElementById('catFilterName').textContent = '❤️ Mis Favoritas';
+  document.getElementById('catFilterBar').classList.add('show');
+  isRandom = false;
+  currentDay = 0;
+  
+  const favArr = getFilteredArray();
+  if (favArr.length === 0) {
+    document.getElementById('affirmation').textContent = 'Aún no tienes favoritas. Toca el ❤️ en una afirmación para guardarla.';
+    document.getElementById('author').textContent = '';
+    document.getElementById('dayCounter').textContent = '❤️ MIS FAVORITAS';
+    document.getElementById('favBtn').textContent = '🤍';
+  } else {
+    showAffirmation(0);
+  }
+}
+
+// Override getFilteredArray to handle favorites
+const _origGetFilteredArray = getFilteredArray;
+getFilteredArray = function() {
+  if (activeCategory === '__favorites__') {
+    return getCurrentArray().filter((a) => {
+      const key = currentMode + ':' + a.t.substring(0, 60);
+      return favorites.includes(key);
+    });
+  }
+  return _origGetFilteredArray();
+};
+
+// Override getCurrentArray to handle favorites
+const _origGetCurrentArray = getCurrentArray;
+getCurrentArray = function() {
+  if (activeCategory === '__favorites__') {
+    return _origGetCurrentArray().filter((a) => {
+      const key = currentMode + ':' + a.t.substring(0, 60);
+      return favorites.includes(key);
+    });
+  }
+  return _origGetCurrentArray();
+};
+
+// Patch showAffirmation to update fav button and guard empty arrays
+const _origShowAffirmation2 = showAffirmation;
+showAffirmation = function(index) {
+  const arr = getCurrentArray();
+  if (!arr || arr.length === 0) {
+    if (activeCategory === '__favorites__') {
+      document.getElementById('affirmation').textContent = 'Aún no tienes favoritas. Toca el ❤️ en una afirmación para guardarla.';
+      document.getElementById('author').textContent = '';
+      document.getElementById('dayCounter').textContent = '❤️ MIS FAVORITAS';
+      document.getElementById('favBtn').textContent = '🤍';
+    }
+    return;
+  }
+  _origShowAffirmation2(index);
+  updateFavButton();
+};
+
+// Patch renderCategories to add favorites option
+const _origRenderCategories = renderCategories;
+renderCategories = function() {
+  const list = document.getElementById('catList');
+  list.innerHTML = '';
+  
+  // Favorites button FIRST
+  const favBtn = document.createElement('button');
+  favBtn.className = 'cat-btn' + (activeCategory === '__favorites__' ? ' active-cat' : '');
+  favBtn.innerHTML = '<span>❤️ Mis Favoritas</span><span class="cat-count">' + favorites.length + '</span>';
+  favBtn.onclick = function() { showFavoritesCategory(); toggleCategories(); };
+  list.appendChild(favBtn);
+  
+  // "Todas" button
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-btn' + (activeCategory === null ? ' active-cat' : '');
+  allBtn.innerHTML = '<span>✨ Todas las afirmaciones</span><span class="cat-count">' + affirmations.length + '</span>';
+  allBtn.onclick = function() { clearCategory(); toggleCategories(); };
+  list.appendChild(allBtn);
+  
+  // Category buttons
+  CATEGORIES.forEach(function(cat) {
+    const count = affirmations.filter(function(a) { return a.c === cat; }).length;
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (activeCategory === cat ? ' active-cat' : '');
+    btn.innerHTML = '<span>' + cat + '</span><span class="cat-count">' + count + '</span>';
+    btn.onclick = function() { selectCategory(cat); toggleCategories(); };
+    list.appendChild(btn);
+  });
+};
+
+// Patch clearCategory to reset favorites state
+const _origClearCategory = clearCategory;
+clearCategory = function() {
+  showingFavorites = false;
+  _origClearCategory();
+};
+
+// ═══════════════════════════════════════════
+// STREAK SYSTEM (GAMIFICACIÓN)
+// ═══════════════════════════════════════════
+
+function checkStreak() {
+  const today = new Date().toDateString();
+  const lastVisit = localStorage.getItem('affirm_last_visit');
+  let streak = parseInt(localStorage.getItem('affirm_streak') || '0');
+  
+  if (lastVisit === today) return streak; // Ya visitó hoy
+  
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  if (lastVisit === yesterday.toDateString()) {
+    streak++; // Día consecutivo
+  } else {
+    streak = 1; // Reiniciar racha
+  }
+  
+  localStorage.setItem('affirm_streak', streak);
+  localStorage.setItem('affirm_last_visit', today);
+  return streak;
+}
+
+function getStreakMessage(streak) {
+  if (streak >= 365) return '🔥 ' + streak + ' días ¡ÉPICO!';
+  if (streak >= 100) return '🔥 ' + streak + ' días ¡Legendario!';
+  if (streak >= 30) return '🔥 ' + streak + ' días ¡Imparable!';
+  if (streak >= 7) return '🔥 ' + streak + ' días ¡Increíble!';
+  if (streak >= 2) return '🔥 ' + streak + ' días';
+  if (streak === 1) return '🔥 ¡Empieza tu racha!';
+  return '';
+}
+
+function showStreakCelebration(streak) {
+  if (streak === 7) showToast('🔥 ¡7 días seguidos! ¡Sigue así!');
+  else if (streak === 30) showToast('🔥 ¡30 días! ¡Eres increíble!');
+  else if (streak === 100) showToast('🔥 ¡100 días! ¡Leyenda!');
+  else if (streak === 365) showToast('🔥 ¡1 AÑO COMPLETO! ¡ÉPICO!');
+}
+
+function updateStreakDisplay() {
+  const streak = checkStreak();
+  const el = document.getElementById('streakCounter');
+  const msg = getStreakMessage(streak);
+  if (msg) {
+    el.innerHTML = '<span class="streak-fire">🔥</span> ' + msg;
+    el.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+  }
+  showStreakCelebration(streak);
+}
+
 // Initialize TTS after page loads
 
 initTTS();
 
 init();
+
+// Initialize streak and favorites display
+updateStreakDisplay();
+updateFavButton();
 
 </script>
 
