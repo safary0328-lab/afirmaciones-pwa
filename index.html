@@ -2806,6 +2806,9 @@ const t=themes[key];
 if(!t)return;
 currentThemeKey=key;
 shuffledImages=[];
+shuffledImages=[];
+shuffledImages=[];
+shuffledImages=[];
 const r=document.documentElement.style;
 r.setProperty('--bg-gradient',t.background);
 r.setProperty('--card-bg',t.cardBg);
@@ -3022,9 +3025,38 @@ changeBackground(index);
 localStorage.setItem('affirm_current_day',index);
 }
 
+function shuffleArray(array){
+  const shuffled=[...array];
+  for(let i=shuffled.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+  }
+  return shuffled;
+}
+
+let shuffledImages=[];
+
+function getShuffledImages(){
+  if(shuffledImages.length===0){
+    const theme=themes[currentThemeKey];
+    if(theme.isPhoto&&theme.images){
+      shuffledImages=shuffleArray(theme.images);
+    }
+  }
+  return shuffledImages;
+}
+
 function changeBackground(index){
-// Keep theme background; don't override with cosmic gradients
-document.body.style.background=themes[currentThemeKey].background;
+const theme=themes[currentThemeKey];
+if(theme.isPhoto&&theme.images){
+  const images=getShuffledImages();
+  const imgIndex=index%images.length;
+  const imgPath=images[imgIndex];
+  document.body.style.background="linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('"+imgPath+"') center/cover no-repeat";
+  document.body.style.backgroundAttachment='fixed';
+}else{
+  document.body.style.background=theme.background;
+}
 }
 
 function nextDay(){
