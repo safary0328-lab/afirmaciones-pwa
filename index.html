@@ -513,6 +513,26 @@ display:flex;flex-direction:column;align-items:center;gap:8px}
       <span class="sound-emoji">🎹</span>
       <span class="sound-name">Piano meditativo</span>
     </button>
+    <button class="sound-btn" onclick="selectAmbientSound('thunderstorm')" id="sound-thunderstorm">
+      <span class="sound-emoji">⛈️</span>
+      <span class="sound-name">Tormenta</span>
+    </button>
+    <button class="sound-btn" onclick="selectAmbientSound('singingbowl')" id="sound-singingbowl">
+      <span class="sound-emoji">🔔</span>
+      <span class="sound-name">Cuenco tibetano</span>
+    </button>
+    <button class="sound-btn" onclick="selectAmbientSound('whitenoise')" id="sound-whitenoise">
+      <span class="sound-emoji">📻</span>
+      <span class="sound-name">Ruido blanco</span>
+    </button>
+    <button class="sound-btn" onclick="selectAmbientSound('stream')" id="sound-stream">
+      <span class="sound-emoji">💧</span>
+      <span class="sound-name">Arroyo</span>
+    </button>
+    <button class="sound-btn" onclick="selectAmbientSound('crickets')" id="sound-crickets">
+      <span class="sound-emoji">🦗</span>
+      <span class="sound-name">Grillos nocturnos</span>
+    </button>
     <button class="sound-btn mp3-btn" onclick="selectAmbientSound('mp3')" id="sound-mp3">
       <span class="sound-emoji">🎶</span>
       <span class="sound-name">Música original (loop)</span>
@@ -3731,6 +3751,151 @@ osc.stop(now+5);
 }
 playChord();
 pianoInterval=setInterval(playChord,4000+Math.random()*3000);
+},
+thunderstorm(){
+// Rain with thunder rumbles
+const noise=ambientCtx.createBufferSource();
+noise.buffer=createNoiseBuffer(10);
+noise.loop=true;
+const filter=ambientCtx.createBiquadFilter();
+filter.type='bandpass';
+filter.frequency.value=2500;
+filter.Q.value=0.4;
+const gain=ambientCtx.createGain();
+gain.gain.value=0.5;
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(ambientGain);
+noise.start();
+ambientNodes.push(noise,filter,gain);
+// Thunder rumbles
+function thunder(){
+if(!ambientPlaying)return;
+try{
+const tNoise=ambientCtx.createBufferSource();
+tNoise.buffer=createBrownNoiseBuffer(3);
+const tFilter=ambientCtx.createBiquadFilter();
+tFilter.type='lowpass';
+tFilter.frequency.value=200;
+const tGain=ambientCtx.createGain();
+const now=ambientCtx.currentTime;
+tGain.gain.setValueAtTime(0,now);
+tGain.gain.linearRampToValueAtTime(0.4,now+0.3);
+tGain.gain.exponentialRampToValueAtTime(0.001,now+2.5);
+tNoise.connect(tFilter);
+tFilter.connect(tGain);
+tGain.connect(ambientGain);
+tNoise.start(now);
+tNoise.stop(now+3);
+}catch(e){}
+}
+pianoInterval=setInterval(thunder,5000+Math.random()*8000);
+},
+singingbowl(){
+// Tibetan singing bowl harmonics
+function playBowl(){
+if(!ambientPlaying)return;
+try{
+const freqs=[261.63,392,523.25,659.25];
+const freq=freqs[Math.floor(Math.random()*freqs.length)];
+const now=ambientCtx.currentTime;
+[1,2.01,3.02].forEach((h,i)=>{
+const osc=ambientCtx.createOscillator();
+osc.type='sine';
+osc.frequency.value=freq*h;
+const g=ambientCtx.createGain();
+g.gain.setValueAtTime(0,now);
+g.gain.linearRampToValueAtTime(0.08/(i+1),now+0.5);
+g.gain.exponentialRampToValueAtTime(0.001,now+6);
+osc.connect(g);
+g.connect(ambientGain);
+osc.start(now);
+osc.stop(now+6);
+});
+}catch(e){}
+}
+playBowl();
+pianoInterval=setInterval(playBowl,4000+Math.random()*4000);
+},
+whitenoise(){
+// Pure white noise for focus
+const noise=ambientCtx.createBufferSource();
+noise.buffer=createNoiseBuffer(10);
+noise.loop=true;
+const filter=ambientCtx.createBiquadFilter();
+filter.type='lowpass';
+filter.frequency.value=8000;
+const gain=ambientCtx.createGain();
+gain.gain.value=0.3;
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(ambientGain);
+noise.start();
+ambientNodes.push(noise,filter,gain);
+},
+stream(){
+// Babbling brook with water sounds
+const noise=ambientCtx.createBufferSource();
+noise.buffer=createNoiseBuffer(10);
+noise.loop=true;
+const filter=ambientCtx.createBiquadFilter();
+filter.type='bandpass';
+filter.frequency.value=1500;
+filter.Q.value=0.8;
+const lfo=ambientCtx.createOscillator();
+lfo.type='sine';
+lfo.frequency.value=0.3;
+const lfoGain=ambientCtx.createGain();
+lfoGain.gain.value=500;
+lfo.connect(lfoGain);
+lfoGain.connect(filter.frequency);
+const gain=ambientCtx.createGain();
+gain.gain.value=0.4;
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(ambientGain);
+noise.start();
+lfo.start();
+ambientNodes.push(noise,filter,lfo,lfoGain,gain);
+},
+crickets(){
+// Night crickets chirping
+const noise=ambientCtx.createBufferSource();
+noise.buffer=createNoiseBuffer(10);
+noise.loop=true;
+const filter=ambientCtx.createBiquadFilter();
+filter.type='bandpass';
+filter.frequency.value=4000;
+filter.Q.value=2;
+const gain=ambientCtx.createGain();
+gain.gain.value=0.15;
+noise.connect(filter);
+filter.connect(gain);
+gain.connect(ambientGain);
+noise.start();
+ambientNodes.push(noise,filter,gain);
+// Chirp pattern
+function chirp(){
+if(!ambientPlaying)return;
+try{
+const osc=ambientCtx.createOscillator();
+osc.type='sine';
+osc.frequency.value=4200+Math.random()*400;
+const g=ambientCtx.createGain();
+const now=ambientCtx.currentTime;
+g.gain.setValueAtTime(0,now);
+for(let i=0;i<3;i++){
+g.gain.linearRampToValueAtTime(0.1,now+i*0.08);
+g.gain.linearRampToValueAtTime(0.02,now+i*0.08+0.04);
+}
+g.gain.exponentialRampToValueAtTime(0.001,now+0.3);
+osc.connect(g);
+g.connect(ambientGain);
+osc.start(now);
+osc.stop(now+0.3);
+}catch(e){}
+}
+pianoInterval=setInterval(chirp,200+Math.random()*600);
 }
 };
 
@@ -3755,7 +3920,7 @@ document.getElementById('ambientPlayBtn').classList.add('playing');
 return;
 }
 // Start new ambient sound
-const names={rain:'🌧️ Lluvia',piano:'🎹 Piano suave',waves:'🌊 Olas del mar',binaural:'🧘 Binaural beats',fire:'🔥 Fogata',guitar:'🎸 Guitarra',strings:'🎻 Cuerdas',flute:'🪈 Flauta tibetana',forestbirds:'🌿 Bosque y pájaros',medpiano:'🎹 Piano meditativo'};
+const names={rain:'🌧️ Lluvia',piano:'🎹 Piano suave',waves:'🌊 Olas del mar',binaural:'🧘 Binaural beats',fire:'🔥 Fogata',guitar:'🎸 Guitarra',strings:'🎻 Cuerdas',flute:'🪈 Flauta tibetana',forestbirds:'🌿 Bosque y pájaros',medpiano:'🎹 Piano meditativo',thunderstorm:'⛈️ Tormenta',singingbowl:'🔔 Cuenco tibetano',whitenoise:'📻 Ruido blanco',stream:'💧 Arroyo',crickets:'🦗 Grillos nocturnos'};
 document.getElementById('nowPlaying').textContent=names[type]||type;
 if(ambientSounds[type]){
 ambientSounds[type]();
